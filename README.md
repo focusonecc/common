@@ -14,7 +14,8 @@ This module include the following common function features:
 dependencies
 - Django 
 - tastypie
-- Fabric 
+- Fabric / requries
 - factory
 - faker
+
 
