@@ -101,7 +101,7 @@ def reset_all():
 ```
 
 
-```
+```sh
 fab setup_all # init the environment for all hosts
 fab reset_all # clean the environment for all hosts
 ```
