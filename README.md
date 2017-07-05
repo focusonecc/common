@@ -30,7 +30,7 @@ from fabrics import HostConfig, DebRequirement, PyRequirement
 
 # Remote host general configurations
 HOST_CONFIG = [
-    ('vagrant@192.168.33.10:22', 'vagrant', 'dev', 'dev')
+    ('vagrant@192.168.33.10:22', 'vagrant', 'dev', 'dev') #hostring, password, name, role
 ]
 
 # Remote host OS dependencies configurations
@@ -98,6 +98,12 @@ def reset_dev():
 @hosts(host_config.ALL_HOSTS)
 def reset_all():
     reset()
+```
+
+
+```
+fab setup_all # init the environment for all hosts
+fab reset_all # clean the environment for all hosts
 ```
 
 
