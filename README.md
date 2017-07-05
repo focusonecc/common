@@ -100,7 +100,7 @@ def reset_all():
     reset()
 ```
 
-
+Then in terminal, we can run the following commands:
 ```sh
 fab setup_all # init the environment for all hosts
 fab reset_all # clean the environment for all hosts
