@@ -1,26 +1,9 @@
-# django_common
+# -*- coding: utf-8 -*-
+# @Author: theo-l
+# @Date:   2017-07-05 11:41:52
+# @Last Modified by:   theo-l
+# @Last Modified time: 2017-07-05 12:09:46
 
-Create this repository to maintain the most used common functions in a module, for convinient reason
-
-This module include the following common function features:
-1. Customized Django-related utils
-2. Customized Tastypie-related utils
-3. Customized Testing-related utils
-4. Project scope constants
-5. Project scope model choices
-6. Customized Fabric-related utils
-
-
-dependencies
-- Django 
-- tastypie
-- Fabric / requries
-- factory
-- faker
-
-
-### Fabric usage case ###
-```python
 """
 A demo for the fabrics tool
 """
@@ -98,6 +81,3 @@ def reset_dev():
 @hosts(host_config.ALL_HOSTS)
 def reset_all():
     reset()
-```
-
-

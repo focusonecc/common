@@ -1,4 +1,8 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
+# @Author: theo-l
+# @Date:   2017-07-05 11:11:12
+# @Last Modified by:   theo-l
+# @Last Modified time: 2017-07-05 11:11:51
 
 from django.contrib.auth import get_user_model
 from tastypie.exceptions import Unauthorized
