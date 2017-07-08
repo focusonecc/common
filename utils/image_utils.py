@@ -2,9 +2,9 @@
 # @Author: theo-l
 # @Date:   2017-07-05 12:49:02
 # @Last Modified by:   theo-l
-# @Last Modified time: 2017-07-05 17:23:59
+# @Last Modified time: 2017-07-08 20:57:49
 from PIL import Image
-import StringIO
+from six import StringIO
 
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
