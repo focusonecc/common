@@ -6,7 +6,11 @@ import uuid
 def gen_random_digit_code(length=6):
     return ''.join(random.sample(string.digits, length))
 
+
 def gen_uuid():
+    """
+    Generate a UUID value
+    """
     return uuid.uuid4().hex
 
 
