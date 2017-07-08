@@ -1,1 +1,1 @@
-from auth_factories import UserFactory
+from .auth_factories import UserFactory
