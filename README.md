@@ -107,7 +107,8 @@ fab reset_all # clean the environment for all hosts
 ```
 
 ### django field's choices base usage demo ###
-```
+
+```python
 from common.base_choices import (ChoiceItem, BaseChoice)
 
 class HttpMethodChoice(BaseChoice):
