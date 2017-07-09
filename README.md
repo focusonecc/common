@@ -106,4 +106,27 @@ fab setup_all # init the environment for all hosts
 fab reset_all # clean the environment for all hosts
 ```
 
+### django field's choices base usage demo ###
+```
+from common.base_choices import (ChoiceItem, BaseChoice)
 
+class HttpMethodChoice(BaseChoice):
+    """
+    General API request method choices
+    """
+    GET = ChoiceItem(1, 'HTTP GET')
+    POST = ChoiceItem(2, 'HTTP POST')
+    PUT = ChoiceItem(3, 'HTTP PUT')
+    PATCH = ChoiceItem(4, 'HTTP PATCH')
+    DELETE = ChoiceItem(5, 'HTTP DELETE')
+
+
+from django.db  import models
+from common.models import BaseModel
+
+class APIInfo(BaseModel):
+
+    method = models.IntegerField(verbose_name='Request Method', choices=HttpMethodChoice.choices, default=HttpMethodChoice.GET)
+    ...
+
+```
