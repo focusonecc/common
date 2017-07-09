@@ -2,7 +2,7 @@
 # @Author: theo-l
 # @Date:   2017-07-08 21:16:46
 # @Last Modified by:   theo-l
-# @Last Modified time: 2017-07-08 21:57:41
+# @Last Modified time: 2017-07-08 22:09:22
 
 
 import six
@@ -50,8 +50,8 @@ class BaseChoice(type):
 
 
 class HttpMethodChoice(six.with_metaclass(BaseChoice)):
-    GET = ChoiceItem(1, 'HTTP GET request method')
-    POST = ChoiceItem(2, 'HTTP POST reqeust method')
-    PUT = ChoiceItem(3, 'HTTP PUT request method')
-    PATCH = ChoiceItem(4, 'HTTP PATCH request method')
-    DELETE = ChoiceItem(5, 'HTTP DELETE request method')
+    GET = ChoiceItem(1, 'HTTP GET')
+    POST = ChoiceItem(2, 'HTTP POST')
+    PUT = ChoiceItem(3, 'HTTP PUT')
+    PATCH = ChoiceItem(4, 'HTTP PATCH')
+    DELETE = ChoiceItem(5, 'HTTP DELETE')
