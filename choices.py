@@ -2,7 +2,7 @@
 # @Author: theo-l
 # @Date:   2017-07-08 21:16:46
 # @Last Modified by:   theo-l
-# @Last Modified time: 2017-07-08 23:39:59
+# @Last Modified time: 2017-07-08 23:45:22
 
 
 import six
@@ -71,6 +71,9 @@ class BaseChoice(six.with_metaclass(ChoiceMeta)):
 
 
 class HttpMethodChoice(BaseChoice):
+    """
+    General API request method choices
+    """
     GET = ChoiceItem(1, 'HTTP GET')
     POST = ChoiceItem(2, 'HTTP POST')
     PUT = ChoiceItem(3, 'HTTP PUT')
