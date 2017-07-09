@@ -2,7 +2,7 @@
 # @Author: theo-l
 # @Date:   2017-07-08 21:16:46
 # @Last Modified by:   theo-l
-# @Last Modified time: 2017-07-08 22:09:22
+# @Last Modified time: 2017-07-08 23:39:59
 
 
 import six
@@ -29,14 +29,17 @@ class ChoiceItem(object):
         return str(self.getvalue())
 
 
-class BaseChoice(type):
+class ChoiceMeta(type):
     """
-    The base class for all Choices
-    provide a 'choices' attribute to access for all Choice class
+    Meta class for all choice class
     """
 
     def __new__(metaclass, cls, bases, attr):
-        base_meta = super(BaseChoice, metaclass).__new__(metaclass, cls, bases, attr)
+        """
+        1. parse each ChoiceItem instance attribute into a special attribute 'choices'
+        2. reset the ChoiceItem attribute value to the 'value' of ChoiceItem item
+        """
+        base_meta = super(ChoiceMeta, metaclass).__new__(metaclass, cls, bases, attr)
         if attr:
             choices = []
             for field, value in attr.items():
@@ -49,7 +52,25 @@ class BaseChoice(type):
         return base_meta
 
 
-class HttpMethodChoice(six.with_metaclass(BaseChoice)):
+class BaseChoice(six.with_metaclass(ChoiceMeta)):
+    """
+    Base class of all choices
+
+    Usage:
+
+        # customize a subclass of choice
+        class ColorChoice(BaseChoice):
+            RED = ChoiceItem(1, 'Red')
+            GREEN = ChoiceItem(2, 'Green')
+
+        # in model definition
+        class DemoModel(models.Model):
+            color = models.IntegerField(choices=ColorChoice.choices, default=ColorChoice.RED)
+    """
+    pass
+
+
+class HttpMethodChoice(BaseChoice):
     GET = ChoiceItem(1, 'HTTP GET')
     POST = ChoiceItem(2, 'HTTP POST')
     PUT = ChoiceItem(3, 'HTTP PUT')
