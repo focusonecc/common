@@ -2,13 +2,13 @@
 # @Author: theo-l
 # @Date:   2017-06-26 18:50:30
 # @Last Modified by:   theo-l
-# @Last Modified time: 2017-07-10 09:55:39
+# @Last Modified time: 2017-07-10 10:03:30
 
 import json
 from django.db import models
 from django.db.models.fields.files import (ImageField, ImageFieldFile, FileField)
 from django.db.models.fields.related import ForeignKey
-from django.db.models.fields import DateField, URLField, DateTimeField
+from django.db.models.fields import DateField, URLField, DateTimeField, UUIDField
 
 from common.utils import gen_uuid, get_absolute_url_path, datetime2timestamp
 
@@ -84,6 +84,10 @@ class BaseModel(models.Model):
 
             if isinstance(field_value, (DateField, DateTimeField)):
                 data[field_name] = datetime2timestamp(field_value)
+                continue
+
+            if isinstance(field_value, (UUIDField,)):
+                data[field_name] = str(field_value)
                 continue
 
             if isinstance(field_value, URLField):
