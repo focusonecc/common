@@ -2,7 +2,7 @@
 # @Author: theo-l
 # @Date:   2017-06-26 18:50:30
 # @Last Modified by:   theo-l
-# @Last Modified time: 2017-07-10 10:03:30
+# @Last Modified time: 2017-07-10 10:08:09
 
 import json
 from django.db import models
@@ -79,7 +79,7 @@ class BaseModel(models.Model):
                 continue
 
             if isinstance(field_value, ForeignKey):
-                data[field_name] = field_value.to_dict() if field_name in dehydrate_fields else getattr(self, '{}_id'.format(field_name))
+                data[field_name] = field_value.to_dict() if field_name in dehydrate_fields else str(getattr(self, '{}_id'.format(field_name)))
                 continue
 
             if isinstance(field_value, (DateField, DateTimeField)):
