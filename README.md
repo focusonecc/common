@@ -122,6 +122,9 @@ class HttpMethodChoice(BaseChoice):
     DELETE = ChoiceItem(5, 'HTTP DELETE')
 
 
+############################################################
+# In django model definitions
+############################################################
 from django.db  import models
 from common.models import BaseModel
 

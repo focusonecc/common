@@ -2,11 +2,15 @@
 # @Author: theo-l
 # @Date:   2017-06-26 18:50:30
 # @Last Modified by:   theo-l
-# @Last Modified time: 2017-07-08 20:44:50
+# @Last Modified time: 2017-07-10 09:55:39
 
+import json
 from django.db import models
+from django.db.models.fields.files import (ImageField, ImageFieldFile, FileField)
+from django.db.models.fields.related import ForeignKey
+from django.db.models.fields import DateField, URLField, DateTimeField
 
-from common.utils import gen_uuid
+from common.utils import gen_uuid, get_absolute_url_path, datetime2timestamp
 
 
 class EnabledObjectsManager(models.Manager):
@@ -47,3 +51,44 @@ class BaseModel(models.Model):
         """
         self.enabled = False
         self.save()
+
+    def to_dict(self, dehydrate_fields=None, excludes=None, json_fields=None):
+        """
+        Deserialize model object to simple dict object
+        """
+        dehydrate_fields = dehydrate_fields or []
+        excludes = excludes or []
+        json_fields = json_fields or []
+        data = {}
+        for field in self._meta.fields:
+            field_name = field.name
+            if field_name in excludes:
+                continue
+            field_value = getattr(self, field_name)
+
+            if field_value is None:
+                data[field_name] = None
+                continue
+
+            if field_name in json_fields:
+                data[field_name] = json.loads(field_value)
+                continue
+
+            if isinstance(field_value, (ImageField, ImageFieldFile, FileField)):
+                data[field_name] = get_absolute_url_path(field_value.url)
+                continue
+
+            if isinstance(field_value, ForeignKey):
+                data[field_name] = field_value.to_dict() if field_name in dehydrate_fields else getattr(self, '{}_id'.format(field_name))
+                continue
+
+            if isinstance(field_value, (DateField, DateTimeField)):
+                data[field_name] = datetime2timestamp(field_value)
+                continue
+
+            if isinstance(field_value, URLField):
+                data[field_name] = get_absolute_url_path(field_value)
+                continue
+
+            data[field_name] = field_value
+        return data

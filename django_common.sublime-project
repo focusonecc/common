@@ -8,6 +8,15 @@
 			"shell_cmd": "\"python\" -u \"$file\""
 		}
 	],
+	"folders":
+	[
+		{
+			"path": "/home/liang/projects/tutors/dj_tutor11"
+		},
+		{
+			"path": "."
+		}
+	],
 	"settings":
 	{
 		"tab_size": 4

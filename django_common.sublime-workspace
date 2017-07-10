@@ -719,6 +719,9 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
+	"expanded_folders":
+	[
+	],
 	"file_history":
 	[
 		"/home/liang/projects/django_common/wechat.py",
