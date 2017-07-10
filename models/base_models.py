@@ -2,7 +2,7 @@
 # @Author: theo-l
 # @Date:   2017-06-26 18:50:30
 # @Last Modified by:   theo-l
-# @Last Modified time: 2017-07-10 10:08:09
+# @Last Modified time: 2017-07-10 10:12:15
 
 import json
 from django.db import models
@@ -74,23 +74,23 @@ class BaseModel(models.Model):
                 data[field_name] = json.loads(field_value)
                 continue
 
-            if isinstance(field_value, (ImageField, ImageFieldFile, FileField)):
+            if isinstance(field, (ImageField, ImageFieldFile, FileField)):
                 data[field_name] = get_absolute_url_path(field_value.url)
                 continue
 
-            if isinstance(field_value, ForeignKey):
+            if isinstance(field, ForeignKey):
                 data[field_name] = field_value.to_dict() if field_name in dehydrate_fields else str(getattr(self, '{}_id'.format(field_name)))
                 continue
 
-            if isinstance(field_value, (DateField, DateTimeField)):
+            if isinstance(field, (DateField, DateTimeField)):
                 data[field_name] = datetime2timestamp(field_value)
                 continue
 
-            if isinstance(field_value, (UUIDField,)):
+            if isinstance(field, (UUIDField,)):
                 data[field_name] = str(field_value)
                 continue
 
-            if isinstance(field_value, URLField):
+            if isinstance(field, URLField):
                 data[field_name] = get_absolute_url_path(field_value)
                 continue
 
