@@ -20,7 +20,7 @@ class ErrorCode(object):
         return self._detail
 
     def __str__(self):
-        return self._code
+        return str(self._code)
 
     def __unicode__(self):
         return self.__str__()

@@ -11,8 +11,8 @@ from django.http import HttpResponse
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.http import HttpUnauthorized
 from tastypie.resources import ModelResource, Resource
-from utils import datetime2timestamp, get_absolute_url_path
-import errorcode
+from common.utils import datetime2timestamp, get_absolute_url_path
+from common import errorcode
 
 
 class BaseModelResource(ModelResource):
@@ -35,10 +35,10 @@ class BaseModelResource(ModelResource):
         require_fields = require_fields or []
         for field in require_fields:
             if field not in deserialized_data:
-                return self.error_response(request, errorcode.REQUIRED, reason=u'{} is required!'.format(field))
+                return self._error_response(request, errorcode.REQUIRED, reason='{} is required!'.format(field))
         return True
 
-    def error_response(self, request, status_code, reason=None, data=None):
+    def _error_response(self, request, status_code, reason=None, data=None):
         """
         Return a response immediately with the given status code and description
 
@@ -53,7 +53,7 @@ class BaseModelResource(ModelResource):
         data = data or {}
         response_class = HttpUnauthorized if status_code == errorcode.AUTH_NEEDED else HttpResponse
         data['_status'] = status_code
-        data['_reason'] = status_code.detail
+        data['_reason'] = reason or status_code.detail
         raise ImmediateHttpResponse(
             response=super(BaseModelResource, self).error_response(request, data, response_class))
 
