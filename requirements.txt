@@ -1,0 +1,32 @@
+# python different version compitable
+six == 1.10.0
+
+# common http request related
+requests == 2.18.0
+
+
+# django base requiremnets
+Django == 1.10.0
+Pillow == 4.2.1
+mysqlclient == 1.3.10
+
+# RESTful api related
+django-cors-headers == 1.3.1
+django-tastypie == 0.14.0
+
+# Redis cache related
+django-redis == 4.7.0
+redis == 2.10.5
+
+# QR
+qrcode == 5.3
+
+# process control manager
+supervisor == 3.3.0
+
+# Deployment Manager
+Fabric == 1.13.2
+
+
+
+
