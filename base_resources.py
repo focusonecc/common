@@ -11,7 +11,7 @@ from django.http import HttpResponse
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.http import HttpUnauthorized
 from tastypie.resources import ModelResource, Resource
-from utils import datetime2timestamp, get_absolute_url_path
+from .utils import datetime2timestamp, get_absolute_url_path
 from . import messagecode
 from .settings import RESPONSE_CODE_NAME, RESPONSE_MSG_NAME
 
