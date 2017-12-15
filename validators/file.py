@@ -13,13 +13,13 @@ def validate_file_extension(value, valid_extensions=None):
         raise ValidationError('Unsupported audio file extension.')
 
 
-def valid_image_extensions(value, valid_extensions=valid_image_extensions):
+def validate_image_extensions(value, valid_extensions=valid_image_extensions):
     return validate_file_extension(value, valid_extensions=valid_extensions)
 
 
-def valid_audio_extensions(value, valid_extensions=valid_audio_extensions):
+def validate_audio_extensions(value, valid_extensions=valid_audio_extensions):
     return validate_file_extension(value, valid_extensions=valid_extensions)
 
 
-def valid_video_extensions(value, valid_extensions=valid_video_extensions):
+def validate_video_extensions(value, valid_extensions=valid_video_extensions):
     return validate_file_extension(value, valid_extensions=valid_extensions)
