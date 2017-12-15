@@ -2,7 +2,7 @@
 # @Author: theo-l
 # @Date:   2017-09-08 10:55:04
 # @Last Modified by:   theo-l
-# @Last Modified time: 2017-09-08 12:00:53
+# @Last Modified time: 2017-12-15 15:40:43
 
 import json
 from django.db import models
@@ -31,6 +31,7 @@ class BaseModel(models.Model):
     created_at = models.DateTimeField(editable=False, auto_now_add=True, null=True, verbose_name='Creation time')
     updated_at = models.DateTimeField(editable=False, auto_now=True, null=True, verbose_name='Last update time')
     enabled = models.BooleanField(default=True, verbose_name='Is active?')
+    priority = models.IntegerField(default=1)
 
     objects = AllObjectsManager()
     enables = EnabledObjectsManager()
