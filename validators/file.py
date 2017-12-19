@@ -2,8 +2,14 @@ import os
 from django.core.exceptions import ValidationError
 
 valid_image_extensions = ['.jpg', '.jpeg', '.png', '.gif']
-valid_audio_extensions = ['.mp3', '.wav']
-valid_video_extensions = ['.mp4', '.rmbv']
+valid_audio_extensions = ['.mp3', '.wav',
+                          '.3gp', '.aa', '.wav', '.rm', '.webm']
+
+valid_video_extensions = ['.mp4', '.rmbv', '.mkv', '.webm', '.flv', '.vob',
+                          '.ogv', '.ogg', '.drc', '.gif', '.gifv', '.mng',
+                          '.avi', '.mov', '.wmv', '.yuv', '.qt', '.rm', '.asf',
+                          '.amv', '.m4p', '.m4v', '.mpg', '.mp2', '.mpeg',
+                          '.mpv', '.m2v', '.3gp']
 
 
 def validate_file_extension(value, valid_extensions=None):
