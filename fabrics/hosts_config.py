@@ -73,7 +73,7 @@ class HostConfig:
             return {}
 
         data = {}
-        for host_string, role_or_name in reverse_data.iteritems():
+        for host_string, role_or_name in reverse_data.items():
             data.setdefault(role_or_name, [])
             data[role_or_name].append(host_string)
         return data
