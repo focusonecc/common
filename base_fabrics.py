@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author: theo-l
+<<<<<<< HEAD
 # @Date:   2017-09-08 11:52:55
 # @Last Modified by:   theo-l
 # @Last Modified time: 2017-09-12 15:53:48
@@ -146,3 +147,9 @@ class DebRequirement(BaseRequirement):
                                              install_cmd='sudo apt-get install',
                                              uninstall_cmd='sudo apt-get remove',
                                              **kwargs)
+=======
+# @Date:   2017-06-26 18:52:29
+# @Last Modified by:   theo-l
+# @Last Modified time: 2017-06-26 18:52:34
+# 
+>>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
