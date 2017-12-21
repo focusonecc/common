@@ -4,6 +4,7 @@
 # @Last Modified by:   theo-l
 # @Last Modified time: 2017-09-08 11:49:37
 
+import warning
 from django.conf import settings
 from django.db.models.fields.files import ImageField, FileField
 from django.db.models.fields import DateField, DateTimeField
@@ -20,6 +21,10 @@ class BaseModelResource(ModelResource):
     """
     Customized ModelResource
     """
+
+    def __init__(self, **kwargs, **kwargs):
+        warning.warn('Use common.resource.BaseModelResource instead!')
+        return super(BaseModelResource, self).__init__(*args, **kwargs)
 
     class Meta:
         excludes = []
@@ -66,7 +71,8 @@ class BaseModelResource(ModelResource):
         """
         Make all list API only returned object which enabled=True
         """
-        applicable_filters = super(BaseModelResource, self).build_filters(filters, ignore_bad_filters)
+        applicable_filters = super(BaseModelResource, self).build_filters(
+            filters, ignore_bad_filters)
         if 'pk' not in filters:
             applicable_filters['enabled'] = True
 
@@ -80,7 +86,8 @@ class BaseModelResource(ModelResource):
         if content_type == 'application/x-www-form-urlencoded':  # normal form request
             return request.POST.copy()
 
-        elif content_type.startswith('multipart'):  # form request which contains files
+        # form request which contains files
+        elif content_type.startswith('multipart'):
             data = request.POST.copy()
             if request.FILES:
                 data['FILES'] = request.FILES
@@ -122,7 +129,8 @@ class BaseModelResource(ModelResource):
                 continue
 
             if isinstance(field, (FileField, ImageField)):
-                bundle.data[field.name] = get_absolute_url_path(field_value.url)
+                bundle.data[field.name] = get_absolute_url_path(
+                    field_value.url)
                 continue
 
         return bundle
@@ -131,7 +139,8 @@ class BaseModelResource(ModelResource):
         """
         Build the resource_uri with absolute host address
         """
-        resource_uri = super(BaseModelResource, self).get_resource_uri(bundle_or_obj, url_name)
+        resource_uri = super(BaseModelResource, self).get_resource_uri(
+            bundle_or_obj, url_name)
 
         if resource_uri:
             return '{}{}'.format(settings.HOST.rstrip('/'), resource_uri)
