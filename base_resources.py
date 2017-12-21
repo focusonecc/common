@@ -4,7 +4,7 @@
 # @Last Modified by:   theo-l
 # @Last Modified time: 2017-09-08 11:49:37
 
-import warning
+import warnings
 from django.conf import settings
 from django.db.models.fields.files import ImageField, FileField
 from django.db.models.fields import DateField, DateTimeField
@@ -23,7 +23,7 @@ class BaseModelResource(ModelResource):
     """
 
     def __init__(self, *args, **kwargs):
-        warning.warn('Use common.resource.BaseModelResource instead!')
+        warnings.warn('Use common.resource.BaseModelResource instead!')
         return super(BaseModelResource, self).__init__(*args, **kwargs)
 
     class Meta:
