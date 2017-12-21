@@ -22,7 +22,7 @@ class BaseModelResource(ModelResource):
     """
 
     class Meta:
-        excludes = ['created_at', 'updated_at', 'enabled']
+        excludes = []
         object_class = None
 
     def validate_required(self, request, deserialized_data=None, require_fields=None):
