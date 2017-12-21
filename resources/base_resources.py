@@ -164,4 +164,4 @@ class BaseCommonResource(Resource):
     """
     Customized non-ORM common resource
     """
-    p
+    pass
