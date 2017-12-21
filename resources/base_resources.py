@@ -76,6 +76,7 @@ class BaseModelResource(ModelResource):
             if request.user == obj.creator:
                 return self.error_response(request, errorcode.NOT_ALLOWED, reason="Only creator can do action!")
         """
+        warning.warn('Use message_response instead!')
         data = data or {}
         response_class = HttpUnauthorized if status_code == errorcode.AUTH_NEEDED else HttpResponse
         data['_status'] = status_code
