@@ -22,7 +22,7 @@ class BaseModelResource(ModelResource):
     Customized ModelResource
     """
 
-    def __init__(self, **kwargs, **kwargs):
+    def __init__(self, *args, **kwargs):
         warning.warn('Use common.resource.BaseModelResource instead!')
         return super(BaseModelResource, self).__init__(*args, **kwargs)
 
