@@ -4,21 +4,27 @@
 # @Last Modified by:   theo-l
 # @Last Modified time: 2017-06-26 18:50:43
 
-from datetime import datetime, date
 from django.conf import settings
 from django.db.models.fields.files import ImageField, FileField
+from django.db.models.fields import DateField, DateTimeField
 from django.http import HttpResponse
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.http import HttpUnauthorized
 from tastypie.resources import ModelResource, Resource
 from common.utils import datetime2timestamp, get_absolute_url_path
 from common import errorcode
+from common import messagecode
+from common.settings import RESPONSE_CODE_NAME, RESPONSE_MSG_NAME
 
 
 class BaseModelResource(ModelResource):
     """
     Customized ModelResource
     """
+
+    class Meta:
+        excludes = []
+        object_class = None
 
     def validate_required(self, request, deserialized_data=None, require_fields=None):
         """
@@ -35,8 +41,28 @@ class BaseModelResource(ModelResource):
         require_fields = require_fields or []
         for field in require_fields:
             if field not in deserialized_data:
-                return self._error_response(request, errorcode.REQUIRED, reason='{} is required!'.format(field))
+                return self.message_response(request, messagecode.PARAM_REQUIRED,
+                                             reason='{} is required!'.format(field))
         return True
+
+    def message_response(self, request, code, reason=None):
+        """
+        Return a response immediately with the given status code and description
+
+        :status_code: ErrorCode instance
+        :reason: error description
+        :data: extra data returned in the response content
+
+        Example:
+            if request.user == obj.creator:
+                return self._error_response(request, errorcode.NOT_ALLOWED, reason="Only creator can do action!")
+        """
+        data = {}
+        response_class = HttpUnauthorized if code == messagecode.AUTH_NEEDED else HttpResponse
+        data[RESPONSE_CODE_NAME] = code.code
+        data[RESPONSE_MSG_NAME] = reason or code.message
+        raise ImmediateHttpResponse(
+            response=super(BaseModelResource, self).error_response(request, data, response_class))
 
     def _error_response(self, request, status_code, reason=None, data=None):
         """
@@ -66,7 +92,7 @@ class BaseModelResource(ModelResource):
             applicable_filters['enabled'] = True
         return applicable_filters
 
-    def deserialize(self, request):
+    def deserialize(self, request, data=None, format='application/json'):
         """
         Extract User's request posted data depends on the request content type
         """
@@ -83,24 +109,42 @@ class BaseModelResource(ModelResource):
         request.META['CONTENT_TYPE'] = 'application/json'
         return super(BaseModelResource, self).deserialize(request, request.body, content_type)
 
-    def dehydrate(self, bundle):
+    def dehydrate(self, bundle, exclude_common=True):
         """
         Do some customize behaviors for project requires
             1. convert all DateTimeField's value to a timestamp value
             2. Convert all Media FileField's value to be its absolute url path
-
+            3. if exclude_common = True, the api return value will not includes the common fields
         """
+        bundle = super(BaseModelResource, self).dehydrate(bundle)
 
-        for k, v in bundle.data.iteritems():
+        for field in bundle.obj._meta.fields:
             # convert all datetime/date to timestamp value
-            if isinstance(v, (datetime, date)):
-                bundle.data[k] = datetime2timestamp(v)
+
+            # used to exclude common model fields
+            if exclude_common:
+                if field.name in BaseModelResource.Meta.excludes:
+                    if field.name in bundle.data:
+                        del bundle.data[field.name]
+                    continue
+
+            # used to exclude resource specific exclude fields
+            if field.name in self._meta.excludes:
+                if field.name in bundle.data:
+                    del bundle.data[field.name]
                 continue
 
-            # return the absolute url path of the media file
-            if hasattr(bundle.obj, k) and isinstance(getattr(bundle.obj, k), (FileField, ImageField)):
-                bundle.data[k] = get_absolute_url_path(v)
+            field_value = getattr(bundle.obj, field.name)
+            if not field_value:
                 continue
+            if isinstance(field, (DateField, DateTimeField)):
+                bundle.data[field.name] = datetime2timestamp(field_value)
+                continue
+
+            if isinstance(field, (FileField, ImageField)):
+                bundle.data[field.name] = get_absolute_url_path(field_value.url)
+                continue
+
         return bundle
 
     def get_resource_uri(self, bundle_or_obj=None, url_name='api_dispatch_list'):
@@ -119,4 +163,4 @@ class BaseCommonResource(Resource):
     """
     Customized non-ORM common resource
     """
-    pass
+    p
