@@ -4,6 +4,7 @@
 # @Last Modified by:   theo-l
 # @Last Modified time: 2017-06-26 18:50:43
 
+import warnings
 from django.conf import settings
 from django.db.models.fields.files import ImageField, FileField
 from django.db.models.fields import DateField, DateTimeField
@@ -76,7 +77,7 @@ class BaseModelResource(ModelResource):
             if request.user == obj.creator:
                 return self.error_response(request, errorcode.NOT_ALLOWED, reason="Only creator can do action!")
         """
-        warning.warn('Use message_response instead!')
+        warnings.warn('Use message_response instead!')
         data = data or {}
         response_class = HttpUnauthorized if status_code == errorcode.AUTH_NEEDED else HttpResponse
         data['_status'] = status_code
