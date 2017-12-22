@@ -1,4 +1,9 @@
 {% load wangeditor %}
+<style type="text/css">
+    .w-e-toolbar {
+        width:100%;
+    }
+</style>
 <div id="{{ widget.attrs.id }}_richtext_div" style="width:90%"></div>
 <textarea name="{{ widget.name }}" id="{{ widget.attrs.id }}_richtext"  hidden="True" > {{widget.value|safe}} </textarea>
 <script type="text/javascript">
