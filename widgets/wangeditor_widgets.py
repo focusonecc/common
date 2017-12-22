@@ -11,7 +11,7 @@ class RichTextEditor(widgets.Textarea):
         self.kwargs = kwargs or {}
 
     class Media:
-        css = {'all': ('css/wangEditor.css',), }
+        css = {'all': (('css/wangEditor.css',),)}
 
         js = ('js/wangEditor.js',)
 
