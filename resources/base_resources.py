@@ -6,12 +6,14 @@
 
 import warnings
 from django.conf import settings
+from django.core.exceptions import MultipleObjectsReturned
 from django.db.models.fields.files import ImageField, FileField
 from django.db.models.fields import DateField, DateTimeField
 from django.http import HttpResponse
 from tastypie.exceptions import ImmediateHttpResponse
-from tastypie.http import HttpUnauthorized
+from tastypie.http import HttpUnauthorized, NotFound, HttpCreated, HttpNoContent
 from tastypie.resources import ModelResource, Resource
+from tastypie.utils import dict_strip_unicode_keys
 from common.utils import datetime2timestamp, get_absolute_url_path
 from common import errorcode
 from common import messagecode
@@ -89,7 +91,8 @@ class BaseModelResource(ModelResource):
         """
         Make all list API only returned object which enabled=True
         """
-        applicable_filters = super(BaseModelResource, self).build_filters(filters, ignore_bad_filters)
+        applicable_filters = super(BaseModelResource, self).build_filters(
+            filters, ignore_bad_filters)
         if 'pk' not in filters:
             applicable_filters['enabled'] = True
         return applicable_filters
@@ -102,7 +105,8 @@ class BaseModelResource(ModelResource):
         if content_type == 'application/x-www-form-urlencoded':  # normal form request
             return request.POST.copy()
 
-        elif content_type.startswith('multipart'):  # form request which contains files
+        # form request which contains files
+        elif content_type.startswith('multipart'):
             data = request.POST.copy()
             if request.FILES:
                 data['FILES'] = request.FILES
@@ -144,7 +148,8 @@ class BaseModelResource(ModelResource):
                 continue
 
             if isinstance(field, (FileField, ImageField)):
-                bundle.data[field.name] = get_absolute_url_path(field_value.url)
+                bundle.data[field.name] = get_absolute_url_path(
+                    field_value.url)
                 continue
 
         return bundle
@@ -153,12 +158,59 @@ class BaseModelResource(ModelResource):
         """
         Build the resource_uri with absolute host address
         """
-        resource_uri = super(BaseModelResource, self).get_resource_uri(bundle_or_obj, url_name)
+        resource_uri = super(BaseModelResource, self).get_resource_uri(
+            bundle_or_obj, url_name)
 
         if resource_uri:
             return '{}{}'.format(settings.HOST.rstrip('/'), resource_uri)
 
         return resource_uri
+
+    def put_detail(self, request, **kwargs):
+        """
+        rewrite the parent method to do litter alternatives for the deserialized data
+        """
+        deserialized = self.deserialize(request, request.body, format=request.META.get(
+            'CONTENT_TYPE', 'application/json'))
+        deserialized = self.alter_deserialized_data(deserialized)
+
+        deserialized = self.alter_deserialized_detail_data(
+            request, deserialized)
+        bundle = self.build_bundle(
+            data=dict_strip_unicode_keys(deserialized), request=request)
+
+        try:
+            updated_bundle = self.obj_update(
+                bundle=bundle, **self.remove_api_resource_names(kwargs))
+
+            if not self._meta.always_return_data:
+                return HttpNoContent()
+            else:
+                # Invalidate prefetched_objects_cache for bundled object
+                # because we might have changed a prefetched field
+                updated_bundle.obj._prefetched_objects_cache = {}
+                updated_bundle = self.full_dehydrate(updated_bundle)
+                updated_bundle = self.alter_detail_data_to_serialize(
+                    request, updated_bundle)
+                return self.create_response(request, updated_bundle)
+        except (NotFound, MultipleObjectsReturned):
+            updated_bundle = self.obj_create(
+                bundle=bundle, **self.remove_api_resource_names(kwargs))
+            location = self.get_resource_uri(updated_bundle)
+
+            if not self._meta.always_return_data:
+                return HttpCreated(location=location)
+            else:
+                updated_bundle = self.full_dehydrate(updated_bundle)
+                updated_bundle = self.alter_detail_data_to_serialize(
+                    request, updated_bundle)
+                return self.create_response(request, updated_bundle, response_class=HttpCreated, location=location)
+
+    def alter_deserialized_data(self, deserialzed_data):
+        """
+        一个接口用来调整使用 deserialized 之后得到的数据
+        """
+        return deserialzed_data
 
 
 class BaseCommonResource(Resource):
