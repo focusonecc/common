@@ -1,0 +1,25 @@
+{% load wangeditor %}
+<div id="{{ widget.attrs.id }}_richtext_div" style="width:90%"> </div>
+<textarea name="{{ widget.name }}" id="{{ widget.attrs.id }}_richtext"  hidden="True"> </textarea>
+<script type="text/javascript">
+     var {{ widget.attrs.id }}_editor = new window.wangEditor('#{{ widget.attrs.id }}_richtext_div')
+     // set the editor value to the target element
+     {{ widget.attrs.id }}_editor.customConfig.onchange = function (html) {
+        console.log(html)
+        var targetId = "#{{ widget.attrs.id }}_richtext"
+        $(targetId).val(html);
+    }
+    // show upload image link
+    // {{ widget.attrs.id }}_editor.customConfig.showLinkImg = false
+{% if config.uploadImgShowBase64 %}
+    {{ widget.attrs.id }}_editor.customConfig.uploadImgShowBase64 = true // 上传图片到服务器
+{% elif config.uploadImgServer  %}
+    {% for key, value in config.items %}
+    {{ widget.attrs.id }}_editor.customConfig.{{ key }}= {{ value|py2js }}  // 上传图片到服务器
+    {% endfor %}
+{% endif %}
+    //create the editor instance
+    {{ widget.attrs.id }}_editor.create()
+    // init the default init value for the richtext editor
+    {{ widget.attrs.id }}_editor.txt.html("{{ widget.value|safe }}")
+</script>

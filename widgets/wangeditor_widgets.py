@@ -11,16 +11,9 @@ class RichTextEditor(widgets.Textarea):
         self.kwargs = kwargs or {}
 
     class Media:
-        css = {
-            'all': (
-                ('css/wangEditor.css',),
-            )
+        css = {'all': ('css/wangEditor.css',), }
 
-        }
-
-        js = (
-            ('js/wangEditor.js',),
-        )
+        js = ('js/wangEditor.js',)
 
     def get_context(self, name, value, attrs):
         context = super(RichTextEditor, self).get_context(name, value, attrs)
