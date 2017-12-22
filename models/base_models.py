@@ -34,6 +34,7 @@ class BaseModel(models.Model):
     updated_at = models.DateTimeField(
         editable=False, auto_now=True, null=True, verbose_name='Last update time')
     enabled = models.BooleanField(default=True, verbose_name='Is active?')
+    priority = models.IntegerField(default=1)
 
     objects = AllObjectsManager()
     enables = EnabledObjectsManager()
