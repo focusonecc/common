@@ -6,7 +6,8 @@
 
 import json
 from django.db import models
-from django.db.models.fields.files import (ImageField, ImageFieldFile, FileField)
+from django.db.models.fields.files import (
+    ImageField, ImageFieldFile, FileField)
 from django.db.models.fields.related import ForeignKey
 from django.db.models.fields import DateField, URLField, DateTimeField, UUIDField
 
@@ -26,9 +27,12 @@ class AllObjectsManager(models.Manager):
 
 
 class BaseModel(models.Model):
-    object_id = models.UUIDField(primary_key=True, default=gen_uuid, editable=False)
-    created_at = models.DateTimeField(editable=False, auto_now_add=True, null=True, verbose_name='Creation time')
-    updated_at = models.DateTimeField(editable=False, auto_now=True, null=True, verbose_name='Last update time')
+    object_id = models.UUIDField(
+        primary_key=True, default=gen_uuid, editable=False)
+    created_at = models.DateTimeField(
+        editable=False, auto_now_add=True, null=True, verbose_name='Creation time')
+    updated_at = models.DateTimeField(
+        editable=False, auto_now=True, null=True, verbose_name='Last update time')
     enabled = models.BooleanField(default=True, verbose_name='Is active?')
 
     objects = AllObjectsManager()
@@ -79,7 +83,8 @@ class BaseModel(models.Model):
                 continue
 
             if isinstance(field, ForeignKey):
-                data[field_name] = field_value.to_dict() if field_name in dehydrate_fields else str(getattr(self, '{}_id'.format(field_name)))
+                data[field_name] = field_value.to_dict() if field_name in dehydrate_fields else str(
+                    getattr(self, '{}_id'.format(field_name)))
                 continue
 
             if isinstance(field, (DateField, DateTimeField)):

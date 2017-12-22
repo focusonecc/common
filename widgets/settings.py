@@ -1,0 +1,1 @@
+WANGEDITOR_CONFIG = {}
