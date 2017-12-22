@@ -12,7 +12,7 @@ class RichTextEditor(widgets.Textarea):
 
     class Media:
         css = {
-            'all'：(
+            'all':(
                 ('css/wangEditor.css')
             )
         }
