@@ -7,7 +7,7 @@
      {{ widget.attrs.id }}_editor.customConfig.onchange = function (html) {
         console.log(html)
         var targetId = "#{{ widget.attrs.id }}_richtext"
-        $(targetId).val(html);
+        document.getElementById(targetId).val(html);
     }
     // show upload image link
     // {{ widget.attrs.id }}_editor.customConfig.showLinkImg = false
