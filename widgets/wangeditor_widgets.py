@@ -12,7 +12,7 @@ class RichTextEditor(widgets.Textarea):
 
     class Media:
         css = {
-            'all':(
+            'all': (
                 ('css/wangEditor.css')
             )
         }
@@ -23,8 +23,8 @@ class RichTextEditor(widgets.Textarea):
 
     def get_context(self, name, value, attrs):
         context = super(RichTextEditor, self).get_context(name, value, attrs)
-        if value is None：
-        value = ''
+        if value is None:
+            value = ''
         context['widget']['value'] = value
-        context['config'] =
+        context['config'] = WANGEDITOR_CONFIG
         return context
