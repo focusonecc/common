@@ -1,6 +1,6 @@
 {% load wangeditor %}
-<div id="{{ widget.attrs.id }}_richtext_div" style="width:90%"> </div>
-<textarea name="{{ widget.name }}" id="{{ widget.attrs.id }}_richtext"  hidden="True"> </textarea>
+<div id="{{ widget.attrs.id }}_richtext_div" style="width:90%"></div>
+<textarea name="{{ widget.name }}" id="{{ widget.attrs.id }}_richtext"  hidden="True" > {{widget.value|safe}} </textarea>
 <script type="text/javascript">
      var {{ widget.attrs.id }}_editor = new window.wangEditor('#{{ widget.attrs.id }}_richtext_div')
      // set the editor value to the target element
@@ -21,5 +21,5 @@
     //create the editor instance
     {{ widget.attrs.id }}_editor.create()
     // init the default init value for the richtext editor
-    {{ widget.attrs.id }}_editor.txt.html("{{ widget.value|safe }}")
+    {{ widget.attrs.id }}_editor.txt.html(`{{ widget.value|safe }}`)
 </script>
