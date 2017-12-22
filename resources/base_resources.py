@@ -172,7 +172,7 @@ class BaseModelResource(ModelResource):
         """
         deserialized = self.deserialize(request, request.body, format=request.META.get(
             'CONTENT_TYPE', 'application/json'))
-        deserialized = self.alter_deserialized_data(deserialized)
+        deserialized = self.alter_put_detail_deserialized_data(deserialized)
 
         deserialized = self.alter_deserialized_detail_data(
             request, deserialized)
@@ -206,7 +206,7 @@ class BaseModelResource(ModelResource):
                     request, updated_bundle)
                 return self.create_response(request, updated_bundle, response_class=HttpCreated, location=location)
 
-    def alter_deserialized_data(self, deserialzed_data):
+    def alter_put_detail_deserialized_data(self, deserialzed_data):
         """
         一个接口用来调整使用 deserialized 之后得到的数据
         """
