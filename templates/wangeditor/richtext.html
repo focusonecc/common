@@ -6,7 +6,7 @@
      // set the editor value to the target element
      {{ widget.attrs.id }}_editor.customConfig.onchange = function (html) {
         console.log(html)
-        var targetId = "#{{ widget.attrs.id }}_richtext"
+        var targetId = "{{ widget.attrs.id }}_richtext"
         document.getElementById(targetId).val(html);
     }
     // show upload image link
