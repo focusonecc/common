@@ -183,6 +183,15 @@ class BaseModelResource(ModelResource):
             updated_bundle = self.obj_update(
                 bundle=bundle, **self.remove_api_resource_names(kwargs))
 
+            if 'FILES' in deserialized:
+                file_keys = [key for key in deserialized['FILES'].keys()]
+                obj = updated_bundle.obj
+                for key in file_keys:
+                    if hasattr(obj, key):
+                        setattr(obj, key, deserialized['FILES'][key])
+                obj.save()
+            self.obj_post_updated(obj)
+
             if not self._meta.always_return_data:
                 return HttpNoContent()
             else:
@@ -205,6 +214,13 @@ class BaseModelResource(ModelResource):
                 updated_bundle = self.alter_detail_data_to_serialize(
                     request, updated_bundle)
                 return self.create_response(request, updated_bundle, response_class=HttpCreated, location=location)
+
+    def obj_post_updated(self, obj):
+        """
+        一个接口用来调整更新之后的数据对象，某些情形下有用, 可以避免在model中使用
+        post_save signal带来的无限递归问题!
+        """
+        pass
 
     def alter_put_detail_deserialized_data(self, deserialzed_data):
         """
