@@ -170,8 +170,7 @@ class BaseModelResource(ModelResource):
         """
         rewrite the parent method to do litter alternatives for the deserialized data
         """
-        deserialized = self.deserialize(request, request.body, format=request.META.get(
-            'CONTENT_TYPE', 'application/json'))
+        deserialized = self.deserialize(request)
         deserialized = self.alter_put_detail_deserialized_data(deserialized)
 
         deserialized = self.alter_deserialized_detail_data(

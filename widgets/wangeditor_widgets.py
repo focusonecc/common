@@ -1,4 +1,5 @@
 
+from django.utils.html import mark_safe
 from django.forms import widgets
 from .settings import WANGEDITOR_CONFIG
 
@@ -19,6 +20,6 @@ class RichTextEditor(widgets.Textarea):
         context = super(RichTextEditor, self).get_context(name, value, attrs)
         if value is None:
             value = ''
-        context['widget']['value'] = value
+        context['widget']['value'] = mark_safe(context['widget']['value'])
         context['config'] = WANGEDITOR_CONFIG
         return context
