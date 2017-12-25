@@ -6,10 +6,43 @@
 
 
 class HostConfig:
+    """
+    Usage:
+
+    # 定义相关主机数据信息， 可以定义多个主机
+    HOST_CONFIG = [
+            # (主机地址， 主机密码， 主机名称<可重复>， 主机角色<可重复>)  当可重复字段重复时对应多个主机
+            ('vagrant@192.168.33.10:22', 'vagrant', 'dev', 'dev')
+    ]
+
+    # 初始化主机配置管理实例对象
+    host_config  = HostConfig(host_config=HOST_CONFIG)
+    # 利用主机配置管理实例对象来配置Fabric的全局实例
+    host_config.setup_fabric_env(env)
+
+
+    # 根据主机名称来指定主机列表来定义task
+    @task
+    @hosts(host_config.DEV_HOSTS) # 注意这里的 DEV 对应 HOST_CONFIG 中定义的主机的名称字段 dev 的大写
+    def task_name():
+        ....
+        pass
+
+    # 根据角色名称来指定主机列表来定义task
+    @task
+    @roles(host_config.DEV_ROLES) # 注意这里的 DEV 对应 HOST_CONFIG 中定义的主机的角色字段 dev 的大写
+    def task_name():
+        ...
+        pass
+
+    """
 
     def __init__(self, host_config=None, *args, **kwargs):
         """
-        host_config: a list of tuple about the host information (host_string, password, host_name, host_role)
+        host_config: 关于主机信息的一个元组数据列表, 其形式如下
+            (host_string, password, host_name, host_role)
+           例如:
+            ('vagrant@192.168.33.10:22', 'vagrant', 'dev', 'dev')
         """
 
         self._config = host_config or []
@@ -28,18 +61,9 @@ class HostConfig:
             self.host_string_name_map[host[0]] = host[2]
             self.host_string_role_map[host[0]] = host[3]
 
-        print(self.all_host_names)
-        print(self.all_host_strings)
-        print(self.all_host_roles)
-        print(self.host_string_password_map)
-        print(self.host_string_name_map)
-        print(self.host_string_role_map)
-
         self.name_host_strings_map = self._build_role_or_name_host_string_map(reverse_data=self.host_string_name_map)
         self.role_host_string_map = self._build_role_or_name_host_string_map(reverse_data=self.host_string_role_map)
 
-        print(self.name_host_strings_map)
-        print(self.role_host_string_map)
 
         setattr(self, 'ALL_HOSTS', self.all_host_strings)
         for name in self.all_host_names:
@@ -51,10 +75,10 @@ class HostConfig:
 
     def setup_fabric_env(self, env):
         """
-        Use the attribute value to init fabric's env instance, including:
-            1. hosts
-            2. passwords
-            3. roles
+        将解析过后的主机初始化数据写入到fabric的全局变量 env 中方便后续操作,主要包括:
+            1. 主机 hosts
+            2. 主机密码数据: passwords
+            3. 主机的角色数据: roledefs
         """
         env.hosts = self.all_host_strings
         env.passwords = self.host_string_password_map
@@ -65,9 +89,12 @@ class HostConfig:
         """
         Build a map data structure: name/role to a list of host strings:
 
-        Example:
-            TEST:[host1, host2, host3,...]
-            PROD:[host1, host2, host3,...]
+        构建一个主机名称/主机角色名称 => 到主机地址字符串列表的映射
+
+        例如
+            主机名称: [主机地址1， 主机地址2， 主机地址3，...]
+            角色名称: [主机地址1， 主机地址2， 主机地址3，...]
+
         """
         if reverse_data is None:
             return {}
@@ -77,3 +104,7 @@ class HostConfig:
             data.setdefault(role_or_name, [])
             data[role_or_name].append(host_string)
         return data
+
+
+
+
