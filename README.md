@@ -96,5 +96,6 @@
         
         class APIInfo(BaseModel):
         
-            method = models.IntegerField(verbose_name='Request Method', choices=HttpMethodChoice.choices, default=HttpMethodChoice.GET)
+            method = models.IntegerField(verbose_name='Request Method', choices=HttpMethodChoice.choices, 
+                                         default=HttpMethodChoice.GET)
             ...
