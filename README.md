@@ -1,4 +1,5 @@
-# django_common
+#  Django 后端开发的通用应用组件 Common 
+
 
 Create this repository to maintain the most used common functions in a module, for convinient reason
 
@@ -17,6 +18,21 @@ dependencies
 - Fabric / requries
 - factory
 - faker
+
+## 在Django后端项目的开发和部署中使用该repo的说明
+
+1. 在Django的开发项目中使用该repo的说明
+    
+        # 1. 进入到Django开发项目目录中，将该repo添加为项目的submodule， 会自动clone该repo
+        git submodule add https://github.com/focusonecc/common
+        
+        # 2. 在开发过程中更新该commonrepo的方法
+        git submodule foreach git pull origin master
+   
+2. 在服务器端部署Django项目时同步该repo的说明
+
+        #在Django项目中运行以下的git命令:
+        git submodule foreach git pull origin master
 
 
 ### Fabric usage case ###
