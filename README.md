@@ -1,25 +1,29 @@
-#  Django 后端开发的通用应用组件 Common 
+#  Django 后端开发的通用应用组件(Common)
 
 
-Create this repository to maintain the most used common functions in a module, for convinient reason
+## 项目简介
+创建这个repo主要是为了统一集中来维护在我们的后端开发过程中会经常使用到的一些功能模块， 使得代码本身的质量和文档更加完善和规范，提高项目开发过程效率。 
 
-This module include the following common function features:
-1. Customized Django-related utils
-2. Customized Tastypie-related utils
-3. Customized Testing-related utils
-4. Project scope constants
-5. Project scope model choices
-6. Customized Fabric-related utils
+当前这个repo拟定包含以下的通用功能模块:
 
+1. Django相关的常用工具模块
+2. Tastypie相关的常用工具模块
+3. Testing相关的常用工具模块
+4. Fabric相关的常用工具模块
+5. 推送相关的常用工具模块
+6. 服务器部署相关的标准配置文件模板
+7. 其他一些常用功能模块(例如日期转换， url操作等)
 
-dependencies
+**注意说明， 在项目开发过程中，尽量不要在项目中直接修改该模块， 有任何修改请在该repo中维护后再更新到项目中， 这样能够保证该repo在所有项目中的完整性**
+
+## 项目依赖
 - Django 
 - tastypie
-- Fabric / requries
+- Fabric 
 - factory
 - faker
 
-## 在Django后端项目的开发和部署中使用该repo的说明
+## 项目使用说明
 
 1. 在Django的开发项目中使用该repo的说明
     
@@ -35,118 +39,62 @@ dependencies
         git submodule foreach git pull origin master
 
 
-### Fabric usage case ###
-```python
-"""
-A demo for the fabrics tool
-"""
+## 相关模块的使用案例
+### 1. Fabric 主机管理器使用案例
 
-from fabric.api import (env, task, hosts)
-from fabrics import HostConfig, DebRequirement, PyRequirement
+1. 在项目的根目录下定义fabfile.py， 内容如下:
 
-# Remote host general configurations
-HOST_CONFIG = [
-    ('vagrant@192.168.33.10:22', 'vagrant', 'dev', 'dev') #hostring, password, name, role
-]
+        from fabric.api import (env, task, hosts, roles)
+        from common.fabrics.import HostConfig 
+        
+        # Remote host general configurations
+        HOST_CONFIG = [
+            ('vagrant@192.168.33.10:22', 'vagrant', 'dev', 'dev'), #hostring, password, name, role
+        ]
+        
+        host_config = HostConfig(host_config=HOST_CONFIG)
+        host_config.setup_fabric_env(env)
+        
+        
+        @task
+        @hosts(host_config.DEV_HOSTS) # 注意此处的 DEV 对应 HOST_CONFIG 中的 dev 主机名
+        def taskname1():
+            #...
+            pass
+        
+        @task
+        @roles(host_config.DEV_ROLES) # 注意此处的 DEV 对应 HOST_CONFIG 中的 dev 角色名 
+        def taskname2():
+            # ...
+            pass
 
-# Remote host OS dependencies configurations
-OS_REQUIREMENTS = (
-    'nginx',
-    'git',
-    'python-dev',
-    'python3-dev'
-)
+2. 然后在终端中就可以按照以下方式来调用上述定义的task
 
-# Remote host Python environment configurations
-PY_REQUIREMENTS = (
-    'Django==1.10',
-    'requests==2.8.0'
-)
+        fab taskname1
+        fab taskname1
 
-host_config = HostConfig(host_config=HOST_CONFIG)
-host_config.setup_fabric_env(env)
+### 2. Django  model 字段的choice选项类用例
 
-deb = DebRequirement(requirements=OS_REQUIREMENTS)
-py = PyRequirement(requirements=PY_REQUIREMENTS)
+1. 定义一个选项Choice类
 
+        from common.base_choices import (ChoiceItem, BaseChoice)
+        
+        class HttpMethodChoice(BaseChoice):
+            """
+            General API request method choices
+            """
+            GET = ChoiceItem(1, 'HTTP GET')
+            POST = ChoiceItem(2, 'HTTP POST')
+            PUT = ChoiceItem(3, 'HTTP PUT')
+            PATCH = ChoiceItem(4, 'HTTP PATCH')
+            DELETE = ChoiceItem(5, 'HTTP DELETE')
 
-def setUp():
-    """
-    Initiate the remove host environment
-    """
-    deb.install_requirements()
-    py.install_requirements()
+2. 在model中定义字段时使用
 
-
-def reset():
-    """
-    Initiate the remove host environment
-    """
-    deb.uninstall_requirements()
-    py.uninstall_requirements()
-
-
-############################################################
-# setUp remote hosts
-############################################################
-@task
-@hosts(host_config.DEV_HOSTS)
-def setup_dev():
-    setUp()
-
-
-@task
-@hosts(host_config.ALL_HOSTS)
-def setup_all():
-    setUp()
-
-
-############################################################
-# Reset remote hosts
-############################################################
-@task
-@hosts(host_config.DEV_HOSTS)
-def reset_dev():
-    reset()
-
-
-@task
-@hosts(host_config.ALL_HOSTS)
-def reset_all():
-    reset()
-```
-
-Then in terminal, we can run the following commands:
-```sh
-fab setup_all # init the environment for all hosts
-fab reset_all # clean the environment for all hosts
-```
-
-### django field's choices base usage demo ###
-
-```python
-from common.base_choices import (ChoiceItem, BaseChoice)
-
-class HttpMethodChoice(BaseChoice):
-    """
-    General API request method choices
-    """
-    GET = ChoiceItem(1, 'HTTP GET')
-    POST = ChoiceItem(2, 'HTTP POST')
-    PUT = ChoiceItem(3, 'HTTP PUT')
-    PATCH = ChoiceItem(4, 'HTTP PATCH')
-    DELETE = ChoiceItem(5, 'HTTP DELETE')
-
-
-############################################################
-# In django model definitions
-############################################################
-from django.db  import models
-from common.models import BaseModel
-
-class APIInfo(BaseModel):
-
-    method = models.IntegerField(verbose_name='Request Method', choices=HttpMethodChoice.choices, default=HttpMethodChoice.GET)
-    ...
-
-```
+        from django.db  import models
+        from common.models import BaseModel
+        
+        class APIInfo(BaseModel):
+        
+            method = models.IntegerField(verbose_name='Request Method', choices=HttpMethodChoice.choices, default=HttpMethodChoice.GET)
+            ...
