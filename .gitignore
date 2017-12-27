@@ -99,9 +99,7 @@ ENV/
 
 # mypy
 .mypy_cache/
-<<<<<<< HEAD
-=======
 
 #project related
 choices.py
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
+.idea
