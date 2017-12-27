@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-<<<<<<< HEAD
 # @Author: theo-l
 # @Date:   2017-09-08 12:12:04
 # @Last Modified by:   theo-l
@@ -7,18 +6,21 @@
 
 import xmltodict
 import hashlib
-import requests
-import time
 from six.moves.urllib.parse import quote
-from django.core.cache import cache
 from django.conf import settings
 from collections import OrderedDict
 from common.utils import gen_random_str
+from hashlib import sha1
+import random
+import string
+import time
+import requests
+from django.core.cache import cache
 
 wechat_base_config = {
-    'appId': settings.WECHAT_PAYMENT_APP_ID,
+    'appId'    : settings.WECHAT_PAYMENT_APP_ID,
     'appSecret': settings.WECHAT_PAYMENT_APP_SECRET,
-    'mchId': settings.WECHAT_PAYMENT_MCH_ID,
+    'mchId'    : settings.WECHAT_PAYMENT_MCH_ID,
     'payApiKey': settings.WECHAT_PAYMENT_API_KEY,
     'notifyUrl': '{}{}'.format(settings.WEBSITE_HOST, "/wechat/notify/")
 }
@@ -62,16 +64,19 @@ class BaseWechat(object):
 
     def gen_signature(self, params=None, sign_method=None):
         if not params:
-            raise WechatError('Generate signature error: no data to generate signature!')
+            raise WechatError(
+                    'Generate signature error: no data to generate signature!')
 
         params = {k: v for k, v in params.items() if k != 'sign' and v}
-        params = OrderedDict(sorted(params.items(), key=lambda i: i[0]))  # make the value ordered
+        params = OrderedDict(sorted(params.items(), key=lambda i: i[
+            0]))  # make the value ordered
         encode_str = '&'.join(['{}={}'.format(k, v) for k, v in params])
         sign = sign_method(encode_str)
         return sign.hexdigest().upper()
 
     def verify_signature(self, params=None, sign_method=None):
-        raise NotImplemented('You need to implement this method in each subclass')
+        raise NotImplemented(
+                'You need to implement this method in each subclass')
 
 
 class WechatJSAPIAuth(BaseWechat):
@@ -109,13 +114,16 @@ class WechatJSAPIAuth(BaseWechat):
             return jsapi_ticket
 
         access_token = self.get_access_token()
-        response = requests.get(self.WEIXIN_ACCESS_TICKET_API.format({'token': access_token})).json()
+        response = requests.get(self.WEIXIN_ACCESS_TICKET_API.format(
+                {'token': access_token})).json()
 
         if response['errcode'] != 0:
-            raise WechatError('Fetch wechat jsapi_ticket error: {}, {}'.format(response['errcode'], response['errmsg']))
+            raise WechatError('Fetch wechat jsapi_ticket error: {}, {}'.format(
+                    response['errcode'], response['errmsg']))
 
         jsapi_ticket = response['ticket']
-        self.cache_set(self.API_TICKET_CACHE_KEY, jsapi_ticket, response['expires_in'] - 100)
+        self.cache_set(self.API_TICKET_CACHE_KEY, jsapi_ticket,
+                       response['expires_in'] - 100)
         return jsapi_ticket
 
     def get_access_token(self):
@@ -127,13 +135,16 @@ class WechatJSAPIAuth(BaseWechat):
         if access_token:
             return access_token
 
-        response = requests.get(self.WEIXIN_ACCESS_TOKEN_API.format({'appid': self.app_id, 'appsecret': self.app_secret})).json()
+        response = requests.get(self.WEIXIN_ACCESS_TOKEN_API.format(
+                {'appid': self.app_id, 'appsecret': self.app_secret})).json()
 
         if 'errcode' in response:
-            raise WechatError('Fetch wechat access_token error:{}, {}'.format(response['errcode'], response['errmsg']))
+            raise WechatError('Fetch wechat access_token error:{}, {}'.format(
+                    response['errcode'], response['errmsg']))
 
         access_token = response['access_token']
-        self.cache_set(self.ACCESS_TOKEN_CACHE_KEY, access_token, response['expires_in'] - 100)
+        self.cache_set(self.ACCESS_TOKEN_CACHE_KEY, access_token,
+                       response['expires_in'] - 100)
         return access_token
 
 
@@ -159,7 +170,10 @@ class WechatWebAuth(BaseWechat):
         如果用户同意授权，页面将跳转至 redirect_uri/?code=CODE&state=STATE
         Refer: https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1421140842
         """
-        return self.WECHAT_WEB_AUTH_URL.format(appid=self.app_id, scope='snsapi_base', redirect_uri=quote(redirect_uri), state=state)
+        return self.WECHAT_WEB_AUTH_URL.format(appid=self.app_id,
+                                               scope='snsapi_base',
+                                               redirect_uri=quote(redirect_uri),
+                                               state=state)
 
     def gen_userinfo_oauth_url(self, redirect_uri, state):
         """
@@ -168,7 +182,10 @@ class WechatWebAuth(BaseWechat):
         如果用户同意授权，页面将跳转至 redirect_uri/?code=CODE&state=STATE
         """
 
-        return self.WECHAT_WEB_AUTH_URL.format(appid=self.app_id, scope='snsapi_userinfo', redirect_uri=quote(redirect_uri), state=state)
+        return self.WECHAT_WEB_AUTH_URL.format(appid=self.app_id,
+                                               scope='snsapi_userinfo',
+                                               redirect_uri=quote(redirect_uri),
+                                               state=state)
 
     def get_web_access_token(self, code):
         """
@@ -179,9 +196,14 @@ class WechatWebAuth(BaseWechat):
             openid  用户唯一标识，请注意，在未关注公众号时，用户访问公众号的网页，也会产生一个用户和公众号唯一的OpenID
             scope   用户授权的作用域，使用逗号（,）分隔
         """
-        response = requests.get(self.WECHAT_WEB_AUTH_ACCESS_TOKEN_URL.format(appid=self.app_id, secret=self.app_secret, code=code)).json()
+        response = requests.get(
+                self.WECHAT_WEB_AUTH_ACCESS_TOKEN_URL.format(appid=self.app_id,
+                                                             secret=self.app_secret,
+                                                             code=code)).json()
         if 'errcode' in response:
-            raise WechatError('Request Wechat web authentication error: {}, {}'.format(response['errcode'], response['errmsg']))
+            raise WechatError(
+                    'Request Wechat web authentication error: {}, {}'.format(
+                            response['errcode'], response['errmsg']))
         return response
 
     def get_user_info(self, access_token, openid, lang='zh_CN'):
@@ -198,16 +220,24 @@ class WechatWebAuth(BaseWechat):
             privilege   用户特权信息，json 数组，如微信沃卡用户为（chinaunicom）
             unionid 只有在用户将公众号绑定到微信开放平台帐号后，才会出现该字段。
         """
-        response = requests.get(self.WECHAT_WEB_AUTH_USERINFO_URL.format(access_token=access_token, openid=openid, lang=lang)).json()
+        response = requests.get(
+                self.WECHAT_WEB_AUTH_USERINFO_URL.format(
+                    access_token=access_token,
+                    openid=openid,
+                    lang=lang)).json()
         if 'errcode' in response and response['errcode'] != 0:
-            raise WechatError('Fetch user info failed: {}, {}'.format(response['errcode'], response['errmsg']))
+            raise WechatError(
+                    'Fetch user info failed: {}, {}'.format(response['errcode'],
+                                                            response['errmsg']))
         return response
 
     def validate_access_token(self, access_token, openid):
         """
         can be used to validate the access_token & openid
         """
-        response = requests.get(self.WECHAT_WEB_AUTH_ACCESS_TOKEN_VALIDATE_URL.format(access_token=access_token, openid=openid)).json()
+        response = requests.get(
+                self.WECHAT_WEB_AUTH_ACCESS_TOKEN_VALIDATE_URL.format(
+                        access_token=access_token, openid=openid)).json()
 
         if response.get('errcode', 0) != 0:
             return False
@@ -236,11 +266,11 @@ class WechatOffcialAccountPay(BaseWechat):
         print prepay_data
 
         result = {
-            'appId': self.app_id,
+            'appId'    : self.app_id,
             'timeStamp': str(int(time.time())),
-            'nonceStr': self.get_noncestr(32),
-            'package': 'prepay_id=' + prepay_data['prepay_id'],
-            'signType': 'MD5'
+            'nonceStr' : self.get_noncestr(32),
+            'package'  : 'prepay_id=' + prepay_data['prepay_id'],
+            'signType' : 'MD5'
         }
 
         result['paySign'] = self.gen_signature(result, sign_method=hashlib.md5)
@@ -261,23 +291,25 @@ class WechatOffcialAccountPay(BaseWechat):
 
     def _build_wechat_prepay_unifiedorder(self, params=None):
         if not params:
-            raise WechatError('Require params to generate prepay unified order!')
+            raise WechatError(
+                    'Require params to generate prepay unified order!')
 
         params.update({
-            'appid': self.app_id,
-            'mch_id': self.mch_id,
-            'nonce_str': self.get_noncestr(),
+            'appid'     : self.app_id,
+            'mch_id'    : self.mch_id,
+            'nonce_str' : self.get_noncestr(),
             'trade_type': 'JSAPI',
             'notify_url': self.notify_url,
-            'sign_type': 'MD5',
-            'key': self.pay_api_key
+            'sign_type' : 'MD5',
+            'key'       : self.pay_api_key
         })
 
         params['sign'] = self.gen_signature(params, sign_method=hashlib.md5)
         xml_data = []
         for k, v in params.items():
             if k == 'detail':
-                data = '<{key}><![CDATA[{value}]]></{key}>'.format(key=k, value=v)
+                data = '<{key}><![CDATA[{value}]]></{key}>'.format(key=k,
+                                                                   value=v)
             else:
                 data = '<{key}>{value}</{key}>'.format(key=k, value=v)
             xml_data.append(data)
@@ -285,23 +317,9 @@ class WechatOffcialAccountPay(BaseWechat):
         xml_data.insert(0, '<xml>')
         xml_data.append('</xml>')
         return ''.join(xml_data)
-=======
-# @Author: liang
-# @Date:   2017-07-06 08:06:44
-# @Last Modified by:   theo-l
-# @Last Modified time: 2017-07-06 09:07:06
-
-from hashlib import sha1
-import random
-import string
-import time
-
-import requests
-from django.core.cache import cache
 
 
 class WechatSignature(object):
-
     WEIXIN_ACCESS_TOKEN_API = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={appid}&secret={appsecret}'
     WEIXIN_ACCESS_TICKET_API = 'https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token={token}&type=jsapi'
     ACCESS_TOKEN_CACHE_KEY = 'weixin_access_token_cache'
@@ -316,11 +334,12 @@ class WechatSignature(object):
         api_ticket = self.get_wechat_api_ticket()
         timestamp = int(time.time())
         noncestr = self.get_noncestr()
-        str_to_crypt = 'jsapi_ticket={}&noncestr={}&timestamp={}&url={}'.format(api_ticket, noncestr, timestamp, url)
+        str_to_crypt = 'jsapi_ticket={}&noncestr={}&timestamp={}&url={}'.format(
+                api_ticket, noncestr, timestamp, url)
         signature = sha1(str_to_crypt).hexdigest()
         wechat_signature = {
-            'appId': self.appid,
-            'nonceStr': noncestr,
+            'appId'    : self.appid,
+            'nonceStr' : noncestr,
             'timestamp': timestamp,
             'signature': signature
         }
@@ -331,20 +350,27 @@ class WechatSignature(object):
         if not api_ticket:
             access_token = self.get_wechat_access_token()
 
-            api_ticket = requests.get(self.WEIXIN_ACCESS_TICKET_API.format(token=access_token)).json()
+            api_ticket = requests.get(
+                    self.WEIXIN_ACCESS_TICKET_API.format(
+                        token=access_token)).json()
             if api_ticket['errcode'] == 0:
-                cache.set(self.API_TICKET_CACHE_KEY, api_ticket, timeout=api_ticket['expires_in'] - 100)
+                cache.set(self.API_TICKET_CACHE_KEY, api_ticket,
+                          timeout=api_ticket['expires_in'] - 100)
         return api_ticket['ticket']
 
     def get_wechat_access_token(self):
         access_token = cache.get(self.ACCESS_TOKEN_CACHE_KEY)
         if not access_token:
-            access_token = requests.get(self.WEIXIN_ACCESS_TOKEN_API.format(appid=self.appid, appsecret=self.appsecret))
+            access_token = requests.get(
+                    self.WEIXIN_ACCESS_TOKEN_API.format(appid=self.appid,
+                                                        appsecret=self.appsecret))
             if 'access_token' in access_token:  # no errcode if Ok
-                cache.set(self.ACCESS_TOKEN_CACHE_KEY, access_token, timeout=access_token['expires_in'] - 100)
+                cache.set(self.ACCESS_TOKEN_CACHE_KEY, access_token,
+                          timeout=access_token['expires_in'] - 100)
         return access_token['access_token']
 
     @staticmethod
     def get_noncestr(length=16):
-        return ''.join([random.choice(string.digits + string.ascii_letters) for i in length])
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
+        return ''.join(
+                [random.choice(string.digits + string.ascii_letters) for i in
+                 length])
