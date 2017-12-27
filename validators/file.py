@@ -14,10 +14,10 @@ valid_video_extensions = ['.mp4', '.rmbv', '.mkv', '.webm', '.flv', '.vob',
 
 
 def validate_file_extension(value, valid_extensions=None):
-  valid_extensions = valid_extensions or []
-  ext = os.path.splitext(value.name)[1]
-  if not ext.lower() in valid_extensions:
-    raise ValidationError('Unsupported audio file extension.')
+    valid_extensions = valid_extensions or []
+    ext = os.path.splitext(value.name)[1]
+    if not ext.lower() in valid_extensions:
+      raise ValidationError('Unsupported audio file extension.')
 
 
 def validate_image_extensions(value, valid_extensions=valid_image_extensions):

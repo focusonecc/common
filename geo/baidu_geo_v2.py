@@ -2,6 +2,7 @@
 import warnings
 import requests
 
+__all__ = ('BaiduGeoCoderService',)
 
 class BaiduGeoCoderService(object):
     """
