@@ -43,4 +43,4 @@ EXPIRED = ErrorCode(1006, u'Data expired error!')
 
 if __name__ == '__main__':
     for code in (UNKNOWN_ERROR, SUCCESS):
-        print code.code, code.detail
+        print(code.code, code.detail)
