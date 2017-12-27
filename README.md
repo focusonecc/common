@@ -6,8 +6,8 @@
 
 当前这个repo拟定包含以下的通用功能模块:
 
-- Django相关的常用工具模块 django
-- Tastypie相关的常用工具模块 tastypie
+- Django相关的常用工具模块 (models, templates, templatetags, static, commands, widget )
+- Tastypie相关的常用工具模块 (auth, resources, messagecode) 
 - Testing相关的常用工具模块 tests
 - Fabric相关的常用工具模块 fabrics 
 - 推送相关的常用工具模块 notification
