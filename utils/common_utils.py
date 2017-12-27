@@ -4,6 +4,7 @@
 """
 
 import random
+import  re
 import string
 import uuid
 
@@ -69,3 +70,11 @@ def validate_uuid(uuid_str, version=4):
         return None
     else:
         return value
+
+def validate_telphone(phone_number):
+    """
+    验证手机号码的合法性
+    """
+    m = re.match('^\d{11}', phone_number)
+    return True if m is not None else False
+
