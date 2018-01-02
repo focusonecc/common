@@ -47,7 +47,7 @@ setup(
             'Environment :: Web Environment',
             'Framework :: Django',
             'Intended Audience :: Developers',
-            'Operation System :: OI Independent',
+            'Operation System :: OS Independent',
             'Programming Language :: Python',
         ]
 
