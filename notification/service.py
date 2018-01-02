@@ -17,9 +17,8 @@ from notification.services.umessage import (
 
 class BaseService(object):
 
-    # default allowed ios, android and web
-    allowed_platforms = [PlatformType.ANDROID,
-                         PlatformType.IOS, PlatformType.WEB]
+    # 默认支持的推送服务平台: Android, iOS and web
+    allowed_platforms = [PlatformType.ANDROID, PlatformType.IOS, PlatformType.WEB]
 
     def __init__(self):
         pass
@@ -32,24 +31,26 @@ class BaseService(object):
         else:
             return self.web_push(device.token.split(','), title, content)
 
-    def ios_push(self, tokens, title, content):
+    def ios_push(self, tokens, title, content, **kwargs):
         raise NotImplementedError('you need implemented in subclass')
 
-    def android_push(self, tokens, title, content):
+    def android_push(self, tokens, title, content, **kwargs):
         raise NotImplementedError('you need implemented in subclass')
 
-    def web_push(self, tokens, title, content):
+    def web_push(self, tokens, title, content, **kwargs):
         raise NotImplementedError('you need implemented in subclass')
 
     def support_platform(self, platform):
-        #####################################
-        # check if the service can serve for the
-        # given platform
-        #####################################
+        """
+        检查推送服务是否支持给定的平台
+        """
         return platform in self.allowed_platforms
 
 
 class UmengService(BaseService):
+    """
+    友盟推送服务的外部封装接口
+    """
 
     allowed_platforms = [PlatformType.IOS, PlatformType.ANDROID]
 
@@ -61,7 +62,7 @@ class UmengService(BaseService):
         self.android_secret = android_secret or settings.UMENG_ANDROID_SECRET
         self.pushclient = UmengPushClient()
 
-    def ios_push(self, tokens, title, content, custom=None):
+    def ios_push(self, tokens, title, content, custom=None, **kwargs):
 
         if len(tokens) == 1:
             notification = UmengIOSUnicast(self.ios_key, self.ios_secret)
@@ -79,7 +80,7 @@ class UmengService(BaseService):
         result = self.pushclient.send(notification)
         return result.status_code == 200
 
-    def android_push(self, tokens, title, content, custom=None):
+    def android_push(self, tokens, title, content, custom=None, **kwargs):
         if len(tokens) == 1:
             notification = UmengAndroidUnicast(
                 self.android_key, self.android_secret)
@@ -102,6 +103,9 @@ class UmengService(BaseService):
 
 
 class ServiceAgent(object):
+    """
+    所有推送服务的外部代理接口
+    """
 
     platform_services = {
         PlatformType.IOS: [UmengService(), ],
@@ -109,15 +113,29 @@ class ServiceAgent(object):
         PlatformType.WEB: [UmengService(), ]
     }
 
+    named_services = {
+        'umeng': UmengService()
+    }
+
+
     @staticmethod
     def get_services_by_platform(platform=PlatformType.IOS):
-        #####################################
-        # Return a list of service which support the
-        # specified platform
-        #####################################
+        """
+        返回指定支持指定平台的一个推送服务列表
+        """
 
         if platform not in ServiceAgent.platform_services:
             raise Warning(
                 "Don't have any service support platform: {}".format(platform))
 
         return ServiceAgent.platform_services.get(platform)
+
+    @staticmethod
+    def get_service_by_name(service_name):
+        """
+        根据指定的推送服务名称来获取推送服务实例
+        """
+        if service_name not in ServiceAgent.named_services:
+            raise Warning("Don't have any servce named: {}".format(service_name))
+
+        return ServiceAgent.named_services.get(service_name)
