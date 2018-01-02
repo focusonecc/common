@@ -1,16 +1,10 @@
 # -*- coding: utf-8 -*-
 # @Author: theo-l
-<<<<<<< HEAD
 # @Date:   2017-09-11 10:39:29
 # @Last Modified by:   theo-l
 # @Last Modified time: 2017-09-15 17:41:09
 
-# -*- coding: utf-8 -*-
-# @Author: theo-l
-# @Date:   2017-08-01 07:55:46
-# @Last Modified by:   theo-l
-# @Last Modified time: 2017-08-09 20:45:54
-
+import six
 from django.conf.urls import url
 from django.core.exceptions import ImproperlyConfigured
 from django.core.paginator import Paginator
@@ -20,39 +14,21 @@ from django.http import Http404, JsonResponse
 from django.views.generic import ListView
 from django.views.generic.edit import ModelFormMixin
 from django.views.decorators.csrf import csrf_exempt
-=======
-# @Date:   2017-08-01 07:55:46
-# @Last Modified by:   theo-l
-# @Last Modified time: 2017-08-02 22:17:02
-import six
-
-from django.conf.urls import url
-from django.core.exceptions import ImproperlyConfigured
-from django.core.paginator import InvalidPage, Paginator
-from django.db.models.query import QuerySet
-from django.db import models
-from django.views.generic import ListView
-from django.views.generic.edit import ModelFormMixin
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, Http404
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
 from django.utils.translation import ugettext as _
 from django.urls import reverse
 
 
 class XView(ListView, ModelFormMixin):
-
-<<<<<<< HEAD
     ###########################################################
     # attribute access method
     ###########################################################
 
     # FormMixin
     initial = {}
-    form_class = None
-    pk_url_kwargs = 'pk'
+    form_class = None  # 指定model详情页面form类
+    pk_url_kwargs = 'pk'  # 指定model详情页面url对应的kwargs名称
 
-    resource_name = None  # define the  URLconf's resource name
+    resource_name = None  # 定义URLconf中的resource部分的名称, 默认为model名称
 
     # attributes of MultipleObjectMixin ####
     allow_empty = True
@@ -66,15 +42,14 @@ class XView(ListView, ModelFormMixin):
     context_object_list_name = None
     request_order_key_name = 'order_by'
 
-    form_class = None  # specify which form be used in the detail page
     fields = None  # specify which fields should be display on the detail page's factory form
 
-    list_template_name = None
-    detail_template_name = None
-    list_template_suffix = '_list'
-    detail_template_suffix = '_detail'
+    list_template_name = None  # 指定model列表页面的模板文件名称
+    detail_template_name = None  # 指定model详情页面的模板文件名称
+    list_template_suffix = '_list'  # 指定model列表页面的模板文件名后缀
+    detail_template_suffix = '_detail'  # 指定model详情页面的模板文件名后缀
 
-    context_object_name = None
+    context_object_name = None # 指定model详情页面中的上下文实例对象名称
     context_form_object_name = 'form'
     search_key_name = 'qk'  # the keyword search name
     search_key_type = 'qt'
@@ -91,33 +66,30 @@ class XView(ListView, ModelFormMixin):
     new_detail_url_name = 'new_detail_url'  # define the context variable name which used to access create url
     list_url_name = 'list_url'  # define the context variable name which used to access the list url
 
+
     @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
         method_name = request.method.lower()
         self.request_type = 'list' if kwargs.get(self.pk_url_kwargs, None) is None else 'detail'
-=======
-    @csrf_exempt
-    def dispatch(self, request, *args, **kwargs):
-        print(args, kwargs)
-        method_name = request.method.lower()
-        self.request_type = 'list' if kwargs.get(self.pk_url_kwargs, None) is None else 'detail'
-        print('{}_{}'.format(method_name, self.request_type))
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
+
         if method_name in self.http_method_names:
             handler = getattr(self, '{}_{}'.format(method_name, self.request_type), self.http_method_not_allowed)
         else:
             handler = self.http_method_not_allowed
         return handler(request, *args, **kwargs)
 
+
     @property
     def urls(self):
-<<<<<<< HEAD
         urls = [
-            url(r'{}/$'.format(self.get_resource_name(), self.pk_url_kwargs), self.__class__.as_view(), name=self.get_list_url_name()),
-            url(r'{}/(?P<{}>[\w\d-]+)/$'.format(self.get_resource_name(), self.pk_url_kwargs), self.__class__.as_view(), name=self.get_detail_url_name()),
+            url(r'{}/$'.format(self.get_resource_name(), self.pk_url_kwargs), self.__class__.as_view(),
+                name=self.get_list_url_name()),
+            url(r'{}/(?P<{}>[\w\d-]+)/$'.format(self.get_resource_name(), self.pk_url_kwargs), self.__class__.as_view(),
+                name=self.get_detail_url_name()),
         ]
 
         return self.prepend_urls() + urls
+
 
     def prepend_urls(self):
         """
@@ -125,17 +97,12 @@ class XView(ListView, ModelFormMixin):
         """
         return []
 
+
     def get_resource_name(self):
         """
         Build the model resource's main part of URL
         """
-=======
-        return [
-            url(r'^{}/(?P<{}>[\w\d-]+)?/?$'.format(self.get_resource_name(), self.pk_url_kwargs), self.__class__.as_view(), name=self.get_url_name()),
-        ]
 
-    def get_resource_name(self):
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
         if self.resource_name:
             return self.resource_name
         elif self.model:
@@ -143,10 +110,10 @@ class XView(ListView, ModelFormMixin):
         elif self.queryset:
             return self.queryset.model._meta.model_name
         else:
-<<<<<<< HEAD
             raise ImproperlyConfigured(
-                "You need specify at least one of the attributes (resource_name, model, queryset)"
+                    "You need specify at least one of the attributes (resource_name, model, queryset)"
             )
+
 
     def get_detail_url_name(self):
         """
@@ -154,39 +121,39 @@ class XView(ListView, ModelFormMixin):
         """
         return '{}{}'.format(self.get_resource_name(), self.detail_url_name_suffix)
 
+
     def get_list_url_name(self):
         """
         Build model resource's list URLConf's name
         """
         return '{}{}'.format(self.get_resource_name(), self.list_url_name_suffix)
 
+
     def get_success_url(self):
         """
         Build the url for the detail page's form action url
         """
-        return reverse('{}:{}'.format(self.app_label, self.get_list_url_name()) if self.app_label else self.get_list_url_name())
+        return reverse(
+                '{}:{}'.format(self.app_label,
+                               self.get_list_url_name()) if self.app_label else self.get_list_url_name())
+
 
     def get_list_url(self):
         """
         Build the url for the model resource's list page url
         """
-        return reverse('{}:{}'.format(self.app_label, self.get_list_url_name()) if self.app_label else self.get_list_url_name())
+        return reverse(
+                '{}:{}'.format(self.app_label,
+                               self.get_list_url_name()) if self.app_label else self.get_list_url_name())
+
 
     def get_list(self, request, *args, **kwargs):
         """
         Model resource's list data view
         """
 
-        print "GET List: {}".format(request.path_info)
-=======
-            return None
+        print("GET List: {}".format(request.path_info))
 
-    def get_url_name(self):
-        return self.get_resource_name()+'-manager'
-
-    def get_list(self, request, *args, **kwargs):
-        print("Get object list")
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
         self.object_list = self.get_queryset()
         allow_empty = self.get_allow_empty()
 
@@ -202,8 +169,8 @@ class XView(ListView, ModelFormMixin):
                 raise Http404(_("Empty list and '%(class_name)s.allow_empty' is False.") % {
                     'class_name': self.__class__.__name__,
                 })
-<<<<<<< HEAD
         return self.render_to_response(self.get_context_data(**kwargs))
+
 
     def get_detail(self, request, *args, **kwargs):
         """
@@ -214,98 +181,54 @@ class XView(ListView, ModelFormMixin):
 
         """
 
-        print "GET Detail: {}".format(request.path_info)
+        print("GET Detail: {}".format(request.path_info))
         self.object = self.get_object()
         return self.render_to_response(self.get_context_data(**kwargs))
+
 
     def get_object(self, queryset=None):
         """
         Used to init the detail reuqest's model object, check the detail model object at the same time
-=======
-        context = self.get_context_data(**kwargs)
-        print(context)
-        return self.render_to_response(context)
 
-    def get_detail(self, request, *args, **kwargs):
-        """
-        User request to create a new object or update an exist object
-        """
-        print("Get object detail")
-
-        self.object = self.get_object()
-        form = self.get_form()
-        context = self.get_context_data(**kwargs)
-        context.update({'form': form})
-        print(self.object)
-        form_action = reverse(self.get_url_name(), kwargs={'pk':self.object.pk}) if self.object else reverse(self.get_url_name())
-        context.update({'form_action':form_action})
-
-        print(context)
-        return self.render_to_response(context)
-
-    def get_object(self, queryset=None):
-        """
-        this method is used to check if current request is create or update an object
-        if find object:
-            update an exist object
-        else:
-            create a new object
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
         """
         queryset = queryset or self.get_queryset()
         try:
             pk = self.kwargs.get(self.pk_url_kwargs)
-<<<<<<< HEAD
             return queryset.filter(pk=pk).get()
-=======
-            if pk is None:
-                return None
-            else:
-                if pk in self.new_kwargs:
-                    return None
-                else:
-                    return queryset.filter(pk=pk).get()
 
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
         except Exception:
             return None
+
 
     def post_list(self, request, *args, **kwargs):
         """
         Request to create a new object
         """
-<<<<<<< HEAD
-        print 'POST List: {}'.format(request.path_info)
+        print('POST List: {}'.format(request.path_info))
         form = self.get_form()
         if form.is_valid():
             print('valid post')
             return self.form_valid(form)
         else:
             print('invalid post')
-=======
-        form = self.get_form()
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
+
             return self.form_invalid(form)
+
 
     def post_detail(self, request, *args, **kwargs):
         """
         Request to update an existed object
         """
-<<<<<<< HEAD
-        print 'POST Detail: {}'.format(request.path_info)
-=======
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
+        print('POST Detail: {}'.format(request.path_info))
+
         self.object = self.get_object()
         form = self.get_form()
         if form.is_valid():
             return self.form_valid(form)
         else:
-<<<<<<< HEAD
-            print form.errors
+            print(form.errors)
             return self.form_invalid(form)
+
 
     def get_detail_context_data(self, **kwargs):
         """
@@ -332,13 +255,19 @@ class XView(ListView, ModelFormMixin):
         self._show_context_data(context)
         return context
 
+
     def get_detail_form_action_url(self):
         """
         Build detail page's form's submit action url
         """
         if hasattr(self, 'object') and self.object:
-            return reverse('{}:{}'.format(self.app_label, self.get_detail_url_name()) if self.app_label else self.get_detail_url_name(), kwargs={self.pk_url_kwarg: self.object.pk})
-        return reverse('{}:{}'.format(self.app_label, self.get_list_url_name() if self.app_label else self.get_list_url_name()))
+            return reverse('{}:{}'.format(self.app_label,
+                                          self.get_detail_url_name()) if self.app_label else self.get_detail_url_name(),
+                           kwargs={self.pk_url_kwarg: self.object.pk})
+        return reverse(
+                '{}:{}'.format(self.app_label,
+                               self.get_list_url_name() if self.app_label else self.get_list_url_name()))
+
 
     def get_list_context_data(self, **kwargs):
         context = {}
@@ -351,80 +280,46 @@ class XView(ListView, ModelFormMixin):
         if page_size:
             paginator, page, queryset, is_paginated = self.paginate_queryset(queryset, page_size)
             context.update({
-=======
-            return self.form_invalid(form)
 
-    def get_detail_context_data(self, **kwargs):
-        context = {}
-        if hasattr(self, 'object') and self.object is not None:
-            context['object'] = self.object
-            context_object_name = self.get_context_object_name(self.object)
-            if context_object_name:
-                context[context_object_name] = self.object
-        context.update({'template': self.get_detail_template_names()})
-        context.update(kwargs)
-        return context
-
-    def get_list_context_data(self, **kwargs):
-        queryset = kwargs.pop('object_list', self.object_list)
-        page_size = self.get_paginate_by(queryset)
-        context_object_name = self.get_context_object_list_name(queryset)
-        if page_size:
-            paginator, page, queryset, is_paginated = self.paginate_queryset(queryset, page_size)
-            context = {
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
-                'paginator': paginator,
-                'page_obj': page,
+                'paginator'   : paginator,
+                'page_obj'    : page,
                 'is_paginated': is_paginated,
-                'object_list': queryset
-<<<<<<< HEAD
+                'object_list' : queryset
             })
             if context_object_name is not None:
                 context[context_object_name] = self.reorder_context_queryset(queryset)
         else:
             context.update({
-=======
-            }
-            if context_object_name is not None:
-                context[context_object_name] = queryset
-        else:
-            context = {
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
-                'paginator': None,
-                'page_obj': None,
+
+                'paginator'   : None,
+                'page_obj'    : None,
                 'is_paginated': None,
-                'object_list': queryset
-<<<<<<< HEAD
+                'object_list' : queryset
             })
             if context_object_name is not None:
                 context[context_object_name] = self.reorder_context_queryset(queryset)
 
-        context[self.new_detail_url_name] = ''.join([reverse('{}:{}'.format(self.app_label, self.get_list_url_name()) if self.app_label else self.get_list_url_name()), self.detail_add_url_suffix, '/'])
+        context[self.new_detail_url_name] = ''.join([reverse(
+                '{}:{}'.format(self.app_label,
+                               self.get_list_url_name()) if self.app_label else self.get_list_url_name()),
+            self.detail_add_url_suffix, '/'])
         self._show_context_data(context)
         return context
 
+
     def _show_context_data(self, context):
-        print 'get {} context:'.format(self.request_type)
+        print('get {} context:'.format(self.request_type))
         for key, value in context.items():
-            value = value.encode('utf-8') if isinstance(value, (str, unicode)) else value
-            print '  {} => {}'.format(key, value)
+            value = value.encode('utf-8') if isinstance(value, six.string_types) else value
+            print('  {} => {}'.format(key, value))
 
-=======
-            }
-            if context_object_name is not None:
-                context[context_object_name] = queryset
-        context.update({'template': self.get_list_template_names()})
-        context.update(kwargs)
-        return context
 
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
     def get_context_data(self, **kwargs):
         """
         The top level method to prepare context data
         """
         context = {}
         context['view'] = self
-<<<<<<< HEAD
         # Insert the url kwargs to context data
         context.update(**kwargs)
         # Insert the request GET query data into context
@@ -437,6 +332,7 @@ class XView(ListView, ModelFormMixin):
             return extra_context_method(**context)
         return context
 
+
     def remove_url_keys(self, kwargs):
         """
         Remove the following parameters from the request's query dict:
@@ -448,6 +344,7 @@ class XView(ListView, ModelFormMixin):
         for key in [self.page_kwarg, self.search_key_name, self.search_key_type, self.request_order_key_name]:
             if key in kwargs:
                 del kwargs[key]
+
 
     def get_queryset(self):
         """
@@ -481,70 +378,35 @@ class XView(ListView, ModelFormMixin):
             queryset = queryset.order_by(*request_order)
 
         return queryset
-=======
-        context['url_name'] = self.get_url_name()
-        context.update(**kwargs)
-        extra_context_method = getattr(self, 'get_{}_context_data'.format(self.request_type), None)
-        if extra_context_method is not None:
-            context.update(**extra_context_method())
-        return context
 
-###########################################################
-# attribute access method
-###########################################################
-    initial = {}
-    form_class = None
-    new_kwargs = ['new', 'add', 'create']
-    pk_url_kwargs = 'pk'
-    model = None
-    queryset = None
-    ordering = None
-    page_kwargs = 'page'
-    paginate_by = None
-    paginate_orphans = 0
-    paginator_class = Paginator
-    allow_empty = True
-    context_object_name = None
-    context_object_list_name = None
-    list_template_name = None
-    detail_template_name = None
-    list_template_suffix = '_list'
-    detail_template_suffix = '_detail'
-    resource_name=None
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
 
     def render_to_response(self, context, **response_kwargs):
         """
         Override the use the customized template in context to render the resposne result
         """
         response_kwargs.setdefault('content_type', self.content_type)
-<<<<<<< HEAD
         self._show_context_data(response_kwargs)
         return self.response_class(request=self.request, template=context['template'],
                                    context=context, using=self.template_engine, **response_kwargs)
 
+
     def json_response(self, data):
         """
-        return a json data for the client
+        为客户端请求返回一个接送数据对象
         """
         return JsonResponse(data)
 
-    def get_detail_template_names(self):
-        """
-        Fetch the detail page's template file
-        """
-=======
-        return self.response_class(request=self.request, template=context['template'],
-                                   context=context, using=self.template_engine, **response_kwargs)
 
     def get_detail_template_names(self):
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
+        """
+        返回详情页面模板文件名称
+        """
+
         if self.detail_template_name is not None:
             return [self.detail_template_name]
 
         names = []
         if hasattr(self, 'object') and self.object is not None and isinstance(self.object, models.Model):
-<<<<<<< HEAD
             meta = self.object._meta
         elif hasattr(self, 'model') and self.model is not None and issubclass(self.model, models.Model):
             meta = self.model._meta
@@ -553,36 +415,22 @@ class XView(ListView, ModelFormMixin):
 
         if meta is not None:
             names.append('{}/{}{}.html'.format(meta.app_label, meta.model_name, self.detail_template_suffix))
-=======
-            print('access template name by object')
-            meta = self.object._meta
-        elif hasattr(self, 'model') and self.model is not None and issubclass(self.model, models.Model):
-            print('access template name by model')
-            meta = self.model._meta
-        elif hasattr(self, 'queryset') and self.queryset is not None and isinstance(self.queryset, QuerySet):
-            print('access template name by queryset')
-            meta = self.queryset.model._meta
 
-        names.append('{}/{}{}.html'.format(meta.app_label, meta.model_name, self.detail_template_suffix))
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
         if not names:
             raise ImproperlyConfigured(
-                "XView requires either a definition of "
-                "'detail_template_name' or an model attribute")
+                    "XView requires either a definition of "
+                    "'detail_template_name' or an model attribute")
         return names
 
+
     def get_list_template_names(self):
-<<<<<<< HEAD
         """
-        Fetch the list page's template file
+        返回列表页面模板文件名称
         """
-=======
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
+
         if self.list_template_name is not None:
             return [self.list_template_name]
-
         names = []
-<<<<<<< HEAD
         if hasattr(self, 'object_list') and self.object_list is not None and isinstance(self.object_list, QuerySet):
             meta = self.object_list.model._meta
         elif hasattr(self, 'model') and self.model is not None and issubclass(self.model, models.Model):
@@ -593,24 +441,20 @@ class XView(ListView, ModelFormMixin):
             meta = None
 
         if meta is not None:
-=======
-        if hasattr(self.object_list, 'model'):
-            meta = self.object_list.model._meta
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
             names.append('{}/{}{}.html'.format(meta.app_label, meta.model_name, self.list_template_suffix))
 
         if not names:
             raise ImproperlyConfigured(
-                "XView requires either a definition of "
-                "'list_template_name' or an model attribute")
+                    "XView requires either a definition of "
+                    "'list_template_name' or an model attribute")
 
         return names
 
-<<<<<<< HEAD
+
     def get_detail_context_object_name(self, obj):
-=======
-    def get_context_object_name(self, obj):
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
+        """
+        返回详细上下文中的model实例对象名称
+        """
         if self.context_object_name:
             return self.context_object_name
         elif isinstance(obj, models.Model):
@@ -618,24 +462,25 @@ class XView(ListView, ModelFormMixin):
         else:
             return None
 
-<<<<<<< HEAD
+
     def get_list_content_object_name(self, object_list):
-=======
-    def get_context_object_list_name(self, object_list):
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
+        """
+        返回列表上下文中的model实例对象名称
+        """
         if self.context_object_list_name:
             return self.context_object_list_name
         if hasattr(object_list, 'model'):
             return '{}_list'.format(object_list.model._meta.model_name)
         else:
             return None
-<<<<<<< HEAD
+
 
     def build_filters(self, **filters):
         """
-        We can customize more filter conditions here to do filter action
+        在此可以用来定制更多的过滤动作条件
         """
         return {k: v for k, v in filters.items() if v}
+
 
     def get_order_by_query(self, queries):
         """
@@ -646,10 +491,9 @@ class XView(ListView, ModelFormMixin):
             return [f for f in queries.getlist(self.request_order_key_name) if f]
         return []
 
+
     def reorder_context_queryset(self, queryset):
         """
-        Used to reorder the list request's final queryset list data
+        一个用来给列表请求的最终的数据列表进行排序的接口
         """
         return queryset
-=======
->>>>>>> a1c36b07fbdd3d2c91462ecec37ffa8a83176473
