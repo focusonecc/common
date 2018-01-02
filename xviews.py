@@ -483,8 +483,8 @@ class XView(ListView, ModelFormMixin):
 
     def get_order_by_query(self, queries):
         """
-        accept order by params from the client request url to sort the list data
-        ordering params can specify default list data sort
+        从用户的请求参数中获取排序参数，用来对列表数据进行排序，
+        TODO 可以通过 ordering 参数指定默认的列表数据排序
         """
         if self.request_order_key_name in queries:
             return [f for f in queries.getlist(self.request_order_key_name) if f]
