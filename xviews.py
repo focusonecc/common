@@ -30,16 +30,16 @@ class XView(ListView, ModelFormMixin):
 
     resource_name = None  # 定义URLconf中的resource部分的名称, 默认为model名称
 
-    # attributes of MultipleObjectMixin ####
+    # attributes of MultipleObjectMixin
     allow_empty = True
     queryset = None
     model = None
-    ordering = None  # specify which fields should be used to sort the data in list page
+    ordering = None  # 指定那些字段可以被用来在model列表页面进行排序
     page_kwargs = 'page'
     paginate_by = None
     paginate_orphans = 0
     paginator_class = Paginator
-    context_object_list_name = None
+    context_object_list_name = None # model 列表页面的数据列表实例对象
     request_order_key_name = 'order_by'
 
     fields = None  # specify which fields should be display on the detail page's factory form
@@ -51,24 +51,27 @@ class XView(ListView, ModelFormMixin):
 
     context_object_name = None # 指定model详情页面中的上下文实例对象名称
     context_form_object_name = 'form'
-    search_key_name = 'qk'  # the keyword search name
-    search_key_type = 'qt'
-    search_fields = []  # the field which can be search by keywords
-    detail_add_url_suffix = 'detail'
+    search_key_name = 'qk'  # 默认搜索关键字名称 the keyword search name
+    search_key_type = 'qt' # 默认的关键字搜索类型 **Deprecated**
+    search_fields = []  # 可以被用来进行搜索的model的字段名称列表
+    detail_add_url_suffix = 'detail' # model的默认编辑页面url的后缀
 
-    app_label = None  # current app label which the view belongs to, used to resolve the url
+    app_label = None  # 当前视图所在的Django应用名称， 主要用来反向解析URL
 
-    # used to build the default list&detail url's name suffix
+    # 用来构建默认的列表/详情的URL的名称后缀
     list_url_name_suffix = '_manager'  # url(regex, view, name='resource_name'+'_manager')
     detail_url_name_suffix = '_detail'  # url(regex, view, name='resource_name'+'_detail')
 
-    detail_form_action_url_name = 'form_action'  # define the context variable name which used to access the form submit action url
-    new_detail_url_name = 'new_detail_url'  # define the context variable name which used to access create url
-    list_url_name = 'list_url'  # define the context variable name which used to access the list url
+    detail_form_action_url_name = 'form_action'  # 一个模板上线文变量用来在model详情页面的表单的action使用的URL上
+    new_detail_url_name = 'new_detail_url'  # 一个模板上下文变量用来访问model创建页面的url
+    list_url_name = 'list_url'  #  一个模板上下文变量用来访问model的列表页面的url
 
 
     @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
+        """
+        根据用户请求方式以及页面类型来将请求转发到相应的视图中
+        """
         method_name = request.method.lower()
         self.request_type = 'list' if kwargs.get(self.pk_url_kwargs, None) is None else 'detail'
 
@@ -82,7 +85,7 @@ class XView(ListView, ModelFormMixin):
     @property
     def urls(self):
         urls = [
-            url(r'{}/$'.format(self.get_resource_name(), self.pk_url_kwargs), self.__class__.as_view(),
+            url(r'{}/$'.format(self.get_resource_name()), self.__class__.as_view(),
                 name=self.get_list_url_name()),
             url(r'{}/(?P<{}>[\w\d-]+)/$'.format(self.get_resource_name(), self.pk_url_kwargs), self.__class__.as_view(),
                 name=self.get_detail_url_name()),
@@ -100,7 +103,7 @@ class XView(ListView, ModelFormMixin):
 
     def get_resource_name(self):
         """
-        Build the model resource's main part of URL
+        构造model资源URL的主要部分
         """
 
         if self.resource_name:
@@ -117,21 +120,21 @@ class XView(ListView, ModelFormMixin):
 
     def get_detail_url_name(self):
         """
-        Build model resource's detail URLConf's name
+        构造model资源详情URLconf的名称
         """
         return '{}{}'.format(self.get_resource_name(), self.detail_url_name_suffix)
 
 
     def get_list_url_name(self):
         """
-        Build model resource's list URLConf's name
+        构造model资源列表URLConf的名称
         """
         return '{}{}'.format(self.get_resource_name(), self.list_url_name_suffix)
 
 
     def get_success_url(self):
         """
-        Build the url for the detail page's form action url
+        重载方法:构造model资源详情页面表单action处理结果的URL
         """
         return reverse(
                 '{}:{}'.format(self.app_label,
@@ -140,7 +143,7 @@ class XView(ListView, ModelFormMixin):
 
     def get_list_url(self):
         """
-        Build the url for the model resource's list page url
+        构造model资源列表页面的URL
         """
         return reverse(
                 '{}:{}'.format(self.app_label,
@@ -149,10 +152,8 @@ class XView(ListView, ModelFormMixin):
 
     def get_list(self, request, *args, **kwargs):
         """
-        Model resource's list data view
+        model资源的列表数据响应视图
         """
-
-        print("GET List: {}".format(request.path_info))
 
         self.object_list = self.get_queryset()
         allow_empty = self.get_allow_empty()
@@ -174,35 +175,30 @@ class XView(ListView, ModelFormMixin):
 
     def get_detail(self, request, *args, **kwargs):
         """
-        Default view to process model resource detail request:
-            1. if the pk is corresponed to an object, then means update a model
-            2. else means to create a model object
-        depends on the get_object method's result
-
+        处理model资源详情请求的默认视图, 根据 get_object 返回的结果:
+            1. 如果pk参数对应了一个model实例对象，意味着更新实例
+            2. 否则， 意味着新建一个实例
         """
 
-        print("GET Detail: {}".format(request.path_info))
         self.object = self.get_object()
         return self.render_to_response(self.get_context_data(**kwargs))
 
 
     def get_object(self, queryset=None):
         """
-        Used to init the detail reuqest's model object, check the detail model object at the same time
-
+        用来初始化model详情页面请求， 同时检查相应model实例对象
         """
         queryset = queryset or self.get_queryset()
         try:
             pk = self.kwargs.get(self.pk_url_kwargs)
             return queryset.filter(pk=pk).get()
-
         except Exception:
             return None
 
 
     def post_list(self, request, *args, **kwargs):
         """
-        Request to create a new object
+        用来处理创建一个新对象的请求视图
         """
         print('POST List: {}'.format(request.path_info))
         form = self.get_form()
@@ -217,7 +213,7 @@ class XView(ListView, ModelFormMixin):
 
     def post_detail(self, request, *args, **kwargs):
         """
-        Request to update an existed object
+        用来更新一个model实例对象的请求视图
         """
         print('POST Detail: {}'.format(request.path_info))
 
@@ -232,7 +228,7 @@ class XView(ListView, ModelFormMixin):
 
     def get_detail_context_data(self, **kwargs):
         """
-        Build the context variables for the detail page
+        构造model详情页面的上下文变量
         """
 
         context = {}
@@ -258,7 +254,7 @@ class XView(ListView, ModelFormMixin):
 
     def get_detail_form_action_url(self):
         """
-        Build detail page's form's submit action url
+        构造model详情页面的表单action的提交的URL
         """
         if hasattr(self, 'object') and self.object:
             return reverse('{}:{}'.format(self.app_label,
@@ -270,6 +266,9 @@ class XView(ListView, ModelFormMixin):
 
 
     def get_list_context_data(self, **kwargs):
+        """
+        构造model列表页面模板的上下文变量集合
+        """
         context = {}
         context.update(kwargs)
 
@@ -316,7 +315,7 @@ class XView(ListView, ModelFormMixin):
 
     def get_context_data(self, **kwargs):
         """
-        The top level method to prepare context data
+        顶层的模板上下文数据准备方法
         """
         context = {}
         context['view'] = self
@@ -335,7 +334,7 @@ class XView(ListView, ModelFormMixin):
 
     def remove_url_keys(self, kwargs):
         """
-        Remove the following parameters from the request's query dict:
+        将以下的参数从请求的查询参数中去除:
             1. paginator params
             2. keyword search  name
             3. keyword search type
@@ -348,10 +347,10 @@ class XView(ListView, ModelFormMixin):
 
     def get_queryset(self):
         """
-        Override to customize more complex operation on list page, including:
-            1. keyword search
-            2. client side request dynamic sorting
-            3. common model fields' filter
+        重载方法用来实现列表页面数据的更加复杂的操作， 包括:
+            1. 关键字检索
+            2. 客户端动态排序请求
+            3. model字段过滤
         """
         queryset = super(XView, self).get_queryset()
         queries = self.request.GET.copy()
@@ -382,7 +381,7 @@ class XView(ListView, ModelFormMixin):
 
     def render_to_response(self, context, **response_kwargs):
         """
-        Override the use the customized template in context to render the resposne result
+        重载方法， 用来使用定制的模板来渲染响应的结果
         """
         response_kwargs.setdefault('content_type', self.content_type)
         self._show_context_data(response_kwargs)
