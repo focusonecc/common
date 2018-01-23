@@ -65,7 +65,7 @@ class AppStoreValidator(object):
         # 根据APP传递的支付收据数据来确定收据验证 URL
         if isinstance(receipt,(str,)):
             receipt = json.loads(receipt)
-        env = receipt.get('environment', 'sandbox').lower()
+        env = receipt.get('environment', 'prod').lower()
         self.sandbox = True if env == 'sandbox' else False
 
         receipt_json = {'receipt-data': receipt}
