@@ -53,22 +53,26 @@ class AppStoreValidator(object):
         self._adjust_url_by_sandbox()
 
 
-    def validate(self, receipt, shared_secret=None):
+    def validate(self, receipt, is_final=False, shared_secret=None):
         """
         验证用户应用内购买收据凭证
 
         :param receipt: 收据数据
+        :is_final: 接受的数据是否为最终数据
         :param shared_secret: 可选的共享密码
         :return: 验证结果或异常
         """
 
         # 根据APP传递的支付收据数据来确定收据验证 URL
-        if isinstance(receipt,(str,)):
-            receipt = json.loads(receipt)
-        env = receipt.get('environment', 'prod').lower()
-        self.sandbox = True if env == 'sandbox' else False
+        if not is_final:
 
-        receipt_json = {'receipt-data': receipt}
+            if isinstance(receipt, (str,)):
+                receipt = json.loads(receipt)
+            env = receipt.get('environment', 'prod').lower()
+            self.sandbox = True if env == 'sandbox' else False
+            receipt_json = {'receipt-data': receipt}
+        else:
+            receipt_json = receipt
         if shared_secret:
             receipt_json['password'] = shared_secret
 
